@@ -1,7 +1,6 @@
 -module(volmgr_SUITE).
 
 -include_lib("common_test/include/ct.hrl").
--include_lib("eunit/include/eunit.hrl"). % TODO MAYBE
 
 -include("volunteer.hrl").
 
@@ -15,10 +14,15 @@ all() -> [
          ].
 
 init_per_suite(Config) ->
+    Priv = ?config(priv_dir, Config),
+    ok = application:set_env(mnesia, dir, Priv),
+    ok = volmgr_db:install([node()]),
+    ok = application:start(mnesia),
+    ok = application:start(volunteer_mgr),
     Config.
 
-end_per_suite(Config) ->
-    Config.
+end_per_suite(_Config) ->
+    application:stop(mnesia).
 
 can_save_person(_) ->
     Id = <<"abooey-bob">>,
