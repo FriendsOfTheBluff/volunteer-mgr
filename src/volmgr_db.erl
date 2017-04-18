@@ -4,5 +4,6 @@
 
 -export([save/1]).
 
-save(_Person=#volmgr_person{}) ->
-    error.
+-spec save(Person :: person()) -> ok | {aborted, any()}.
+save(Person=#volmgr_person{}) ->
+    mnesia:write(Person).

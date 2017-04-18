@@ -1,10 +1,13 @@
-.PHONY: all compile test run rel
+.PHONY: all compile dialyzer rel run test
 
 all:
 	@$(REBAR3) do clean, compile
 
 compile:
 	@$(REBAR3) compile
+
+dialyzer: compile
+	@$(REBAR3) dialyzer
 
 test: compile
 	@$(REBAR3) ct

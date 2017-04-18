@@ -6,4 +6,20 @@ jobs:
       - image: erlang:19.3.1
     steps:
       - checkout
-      - run: make test
+      - restore_cache:
+          key: dialyzer-19.3-{{ .Branch }}
+      - restore_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "rebar.lock" }}
+      - run: make dialyzer
+      - save_cache:
+          key: dialyzer-19.3-{{ .Branch }}
+          paths:
+            - "/root/.cache/rebar3/rebar3_19.3.1_plt"
+      - save_cache:
+          key: deps1-{{ .Branch }}-{{ checksum "rebar.lock" }}
+          paths:
+            - "_build/default/lib/cowboy"
+            - "_build/default/lib/cowlib"
+            - "_build/default/lib/erlydtl"
+            - "_build/default/lib/jsx"
+            - "_build/default/lib/ranch"
