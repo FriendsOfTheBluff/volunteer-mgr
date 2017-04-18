@@ -1,1 +1,9 @@
 version: 2
+jobs:
+  build:
+    working_directory: ~/volunteer-mgr
+    docker:
+      - image: erlang@19.3.1
+    steps:
+      - checkout
+      - run: make test
