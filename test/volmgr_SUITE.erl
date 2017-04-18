@@ -7,6 +7,7 @@
 
 -export([all/0,
          init_per_suite/1,
+         end_per_suite/1,
          can_save_person/1]).
 
 all() -> [
@@ -14,6 +15,9 @@ all() -> [
          ].
 
 init_per_suite(Config) ->
+    Config.
+
+end_per_suite(Config) ->
     Config.
 
 can_save_person(_) ->
