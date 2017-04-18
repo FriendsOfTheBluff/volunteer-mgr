@@ -2,14 +2,11 @@
 {application, volunteer_mgr, [
     {description, "volunteer_mgr"},
     {vsn, "1"},
-    {modules, []},
+    {modules, [volunteer_mgr, volunteer_mgr_sup]},
     {registered, []},
     {applications, [
-        kernel,
-        stdlib,
-        cowboy,
-        erlydtl,
-        jsx
+        kernel, stdlib, mnesia,
+        cowboy, erlydtl, jsx
     ]},
     {mod, {volunteer_mgr_app, []}},
     {env, [

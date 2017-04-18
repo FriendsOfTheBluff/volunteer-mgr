@@ -7,5 +7,3 @@
          phone :: phone(),
          email :: binary()
         }).
-
--type person() :: #volmgr_person{}.

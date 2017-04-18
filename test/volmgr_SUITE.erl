@@ -7,32 +7,24 @@
 -export([all/0,
          init_per_suite/1,
          end_per_suite/1,
-         can_save_person/1]).
+         can_create_person/1]).
 
-all() -> [
-          can_save_person
-         ].
+all() -> [can_create_person].
 
 init_per_suite(Config) ->
     Priv = ?config(priv_dir, Config),
     ok = application:set_env(mnesia, dir, Priv),
     ok = volmgr_db:install([node()]),
-    ok = application:start(mnesia),
-    ok = application:start(volunteer_mgr),
+    {ok, _Apps} = application:ensure_all_started(volunteer_mgr),
     Config.
 
 end_per_suite(_Config) ->
     application:stop(mnesia).
 
-can_save_person(_) ->
-    Id = <<"abooey-bob">>,
+can_create_person(_) ->
+    % Id = <<"Abooey-Bob">>,
     First = <<"Bob">>,
     Last = <<"Abooey">>,
     Phone = {345, 555, 1212},
     Email = <<"bob@abooey.com">>,
-    Person = #volmgr_person{id=Id,
-                            first=First,
-                            last=Last,
-                            phone=Phone,
-                            email=Email},
-    ok = volmgr_db:save(Person).
+    ok = volmgr_db:create_person(First, Last, Phone, Email).
