@@ -1,0 +1,20 @@
+%%-*- mode: erlang -*-
+{application, volunteer_mgr, [
+    {description, "volunteer_mgr"},
+    {vsn, "1"},
+    {modules, []},
+    {registered, []},
+    {applications, [
+        kernel,
+        stdlib,
+        cowboy,
+        erlydtl,
+        jsx
+    ]},
+    {mod, {volunteer_mgr_app, []}},
+    {env, [
+        {ip_address, {127,0,0,1}},
+        {port, 8080},
+        {workers, 25}
+    ]}
+]}.

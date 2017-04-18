@@ -1,0 +1,6 @@
+-name volunteer_mgr
+
+-setcookie volunteer_mgr_cookie
+
++K true
++A30
