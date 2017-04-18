@@ -10,7 +10,7 @@ jobs:
           key: dialyzer-19.3-{{ .Branch }}
       - restore_cache:
           key: deps1-{{ .Branch }}-{{ checksum "rebar.lock" }}
-      - run: make dialyzer
+      - run: make dialyzer test
       - save_cache:
           key: dialyzer-19.3-{{ .Branch }}
           paths:
