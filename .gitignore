@@ -12,6 +12,7 @@ erl_crash.dump
 .eunit
 *.o
 *.plt
+rebar3
 rebar3.crashdump
 *.swo
 *.swp
