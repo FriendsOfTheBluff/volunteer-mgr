@@ -7,10 +7,12 @@
 -export([all/0,
          init_per_suite/1,
          end_per_suite/1,
-         create_and_retrieve_person_by_id/1]).
+         create_and_retrieve_person_by_id/1,
+         create_and_retrieve_tag_by_id/1]).
 
 all() -> [
-          create_and_retrieve_person_by_id
+          create_and_retrieve_person_by_id,
+          create_and_retrieve_tag_by_id
          ].
 
 init_per_suite(Config) ->
@@ -33,3 +35,9 @@ create_and_retrieve_person_by_id(_) ->
     Id = <<"Abooey-Bob">>,
     #person{id=Id, first=First, last=Last,
             phone=Phone, email=Email} = volmgr_db:retrieve_person(Id).
+
+create_and_retrieve_tag_by_id(_) ->
+    Tag = 'trail-work',
+    ok = volmgr_db:create_tag(Tag),
+    not_found = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
+    Tag = volmgr_db:retrieve_tag(Tag).
