@@ -2,7 +2,7 @@
 
 -export([tables/0,
          install/1,
-         create_person/4,
+         create_person/5,
          retrieve_person/1,
          retrieve_people/0,
          create_tag/1,
@@ -19,7 +19,8 @@
          first :: binary(),
          last :: binary(),
          phone :: phone(),
-         email :: binary()
+         email :: binary(),
+         notes :: list(binary())
         }).
 
 -record(volmgr_tags, {id :: atom(), active :: boolean()}).
@@ -56,8 +57,9 @@ install(Nodes) ->
 -spec create_person(First :: binary(),
                     Last :: binary(),
                     Phone :: {integer(), integer(), integer()},
-                    Email :: binary()) -> ok | {aborted, any()}.
-create_person(First, Last, Phone, Email) ->
+                    Email :: binary(),
+                    Notes :: list(binary())) -> ok | {aborted, any()}.
+create_person(First, Last, Phone, Email, Notes) ->
     Id = erlang:iolist_to_binary([Last, $-, First]),
     F = fun() ->
             Person = #volmgr_people{id=Id,
@@ -65,7 +67,8 @@ create_person(First, Last, Phone, Email) ->
                                     first=First,
                                     last=Last,
                                     phone=Phone,
-                                    email=Email},
+                                    email=Email,
+                                    notes=Notes},
             mnesia:write(Person)
         end,
     mnesia:activity(transaction, F).
@@ -76,10 +79,10 @@ retrieve_person(Id) ->
             case mnesia:read({volmgr_people, Id}) of
                 [#volmgr_people{id=Id, active=A,
                                 first=F, last=L,
-                                phone=P, email=E}] ->
+                                phone=P, email=E, notes=N}] ->
                     #person{id=Id, active=A,
                             first=F, last=L,
-                            phone=P, email=E};
+                            phone=P, email=E, notes=N};
                 [] ->
                     notfound
             end
@@ -90,10 +93,10 @@ retrieve_person(Id) ->
 retrieve_people() ->
     I = fun(#volmgr_people{id=Id, active=A,
                            first=F, last=L,
-                           phone=P, email=E}, Acc)->
+                           phone=P, email=E, notes=N}, Acc)->
             Person = #person{id=Id, active=A,
                              first=F, last=L,
-                             phone=P, email=E},
+                             phone=P, email=E, notes=N},
 	        [Person|Acc]
 	    end,
 	F = fun() ->
@@ -114,16 +117,13 @@ create_tag(Tag) ->
 -spec create_tags(Tags :: list(atom())) -> ok | {aborted, any()}.
 create_tags(Tags) ->
     Records = [#volmgr_tags{id=Tag, active=true} || Tag <- Tags],
-    F = fun() ->
-            Writer = fun W([]) ->
-                         ok;
-                     W([Record|T]) ->
-                         mnesia:write(Record),
-                         W(T)
-                     end,
-            Writer(Records)
-        end,
-    mnesia:activity(transaction, F).
+    Writer = fun W([]) ->
+                 ok;
+             W([Record|T]) ->
+                 mnesia:write(Record),
+                 W(T)
+             end,
+    mnesia:activity(transaction, Writer, [Records], mnesia).
 
 -spec retrieve_tag(Tag :: atom()) -> atom() | notfound.
 retrieve_tag(Tag) ->

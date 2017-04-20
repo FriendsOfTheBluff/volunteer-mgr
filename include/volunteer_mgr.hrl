@@ -6,7 +6,8 @@
          first :: binary(),
          last :: binary(),
          phone :: phone(),
-         email :: binary()
+         email :: binary(),
+         notes = [] :: list(binary())
         }).
 
 -type person() :: #person{}.

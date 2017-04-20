@@ -35,19 +35,19 @@ create_and_retrieve_person_by_id(_) ->
     Last = <<"Abooey">>,
     Phone = {345, 555, 1212},
     Email = <<"bob@abooey.com">>,
-    ok = volmgr_db:create_person(First, Last, Phone, Email),
+    Notes = [<<"Note 1">>, <<"Note 2">>],
+    ok = volmgr_db:create_person(First, Last, Phone, Email, Notes),
     notfound = volmgr_db:retrieve_person(<<"does-not-exist">>),
     Id = <<"Abooey-Bob">>,
-    #person{id=Id, active=true,
-            first=First, last=Last,
-            phone=Phone, email=Email} = volmgr_db:retrieve_person(Id).
+    #person{id=Id, first=First, last=Last,
+            phone=Phone, email=Email, notes=Notes} = volmgr_db:retrieve_person(Id).
 
 retrieve_all_people(_) ->
     First = <<"Frank">>,
     Last = <<"Barker">>,
     Phone = {456, 555, 1212},
     Email = <<"frankg@gmail.com">>,
-    ok = volmgr_db:create_person(First, Last, Phone, Email),
+    ok = volmgr_db:create_person(First, Last, Phone, Email, []),
     WantId = <<"Barker-Frank">>,
     Want = #person{id=WantId, active=true,
                    first=First, last=Last,
