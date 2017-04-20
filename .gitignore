@@ -4,6 +4,7 @@ ebin/
 log*/
 .rebar/
 .rebar3/
+priv/mnesia/
 
 _*
 *.beam
@@ -12,6 +13,7 @@ erl_crash.dump
 .eunit
 *.o
 *.plt
+Mnesia*
 rebar3
 rebar3.crashdump
 *.swo

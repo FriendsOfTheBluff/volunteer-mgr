@@ -1,3 +1,5 @@
+-define(PRIVDIR, code:priv_dir(volunteer_mgr)).
+
 -type phone() :: {integer(), integer(), integer()}.
 
 -record(person,

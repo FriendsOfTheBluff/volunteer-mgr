@@ -1,7 +1,9 @@
 -module(volunteer_mgr).
+
 -export([http_start/0]).
 
--define(PRIVDIR, code:priv_dir(?MODULE)).
+-include("volunteer_mgr.hrl").
+
 -define(COMPILE_OPTS, [{out_dir, ?PRIVDIR ++ "/templates-compiled/"}]).
 
 http_start() ->

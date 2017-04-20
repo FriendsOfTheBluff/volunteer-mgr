@@ -1,7 +1,8 @@
 -module(volmgr_db).
 
--export([tables/0,
-         install/1,
+-export([start/0,
+         init_tables/0,
+         init_tables/1,
          create_person/5,
          retrieve_person/1,
          retrieve_people/0,
@@ -25,33 +26,29 @@
 
 -record(volmgr_tags, {id :: atom(), active :: boolean()}).
 
--spec tables() -> list(atom()).
-tables() ->
-    [volmgr_people, volmgr_tags].
+-spec start() ->
+    ok | {timeout, list(term())} | {error, any()}.
+start() ->
+    mnesia:wait_for_tables(tables(), 5000).
 
--spec install(list(node())) -> ok | {error, any()}.
-install(Nodes) ->
-    ok = mnesia:create_schema(Nodes),
+-spec init_tables() -> ok.
+init_tables() ->
+    init_tables(ram_copies).
 
-    % TODO multicall rval
-    rpc:multicall(Nodes, application, start, [mnesia]),
-
+-spec init_tables(disc_copies | ram_copies) -> ok.
+init_tables(StorageType) ->
     VolmgrPeopleOpts = [
                {attributes, record_info(fields, volmgr_people)},
-               {disc_copies, Nodes},
-               {type, ordered_set}
+               {type, ordered_set},
+               {StorageType, [node()]}
               ],
     {atomic, ok} = mnesia:create_table(volmgr_people, VolmgrPeopleOpts),
-
     VolmgrTagsOpts = [
                {attributes, record_info(fields, volmgr_tags)},
-               {disc_copies, Nodes},
-               {type, set}
+               {type, set},
+               {StorageType, [node()]}
               ],
     {atomic, ok} = mnesia:create_table(volmgr_tags, VolmgrTagsOpts),
-
-    % TODO multicall rval
-    rpc:multicall(Nodes, application, stop, [mnesia]),
     ok.
 
 -spec create_person(First :: binary(),
@@ -146,3 +143,8 @@ retrieve_tags() ->
 	        mnesia:foldl(I, [], volmgr_tags)
 	    end,
 	mnesia:activity(transaction, F).
+
+%% private
+-spec tables() -> list(atom()).
+tables() ->
+    [volmgr_people, volmgr_tags].
