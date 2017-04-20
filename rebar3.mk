@@ -1,4 +1,4 @@
-.PHONY: clean compile dialyzer rel run test
+.PHONY: clean compile distclean dialyzer rel run test
 
 REBAR3_URL := https://s3.amazonaws.com/rebar3/rebar3
 
@@ -20,6 +20,10 @@ clean: rebar3
 
 compile: rebar3
 	@$(REBAR3) compile
+
+distclean: rebar3
+	@$(REBAR3) clean
+	@rm -rf $(CURDIR)/_build $(CURDIR)/rebar.lock
 
 dialyzer: compile
 	@$(REBAR3) dialyzer
