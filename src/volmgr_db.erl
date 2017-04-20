@@ -11,13 +11,14 @@
 
 -record(volmgr_people,
         {id :: binary(),
+         active :: boolean(),
          first :: binary(),
          last :: binary(),
          phone :: phone(),
          email :: binary()
         }).
 
--record(volmgr_tags, {id :: atom()}).
+-record(volmgr_tags, {id :: atom(), active :: boolean()}).
 
 -spec tables() -> list(atom()).
 tables() ->
@@ -56,6 +57,7 @@ create_person(First, Last, Phone, Email) ->
     Id = erlang:iolist_to_binary([Last, $-, First]),
     F = fun() ->
             Person = #volmgr_people{id=Id,
+                                    active=true,
                                     first=First,
                                     last=Last,
                                     phone=Phone,
@@ -67,13 +69,17 @@ create_person(First, Last, Phone, Email) ->
 -spec retrieve_person(Id :: binary()) -> person() | notfound.
 retrieve_person(Id) ->
     F = fun() ->
-        case mnesia:read({volmgr_people, Id}) of
-            [#volmgr_people{id=Id, first=F, last=L, phone=P, email=E}] ->
-                #person{id=Id, first=F, last=L, phone=P, email=E};
-            [] ->
-                notfound
-        end
-    end,
+            case mnesia:read({volmgr_people, Id}) of
+                [#volmgr_people{id=Id, active=A,
+                                first=F, last=L,
+                                phone=P, email=E}] ->
+                    #person{id=Id, active=A,
+                            first=F, last=L,
+                            phone=P, email=E};
+                [] ->
+                    notfound
+            end
+        end,
     mnesia:activity(transaction, F).
 
 -spec create_tag(Tag :: atom()) -> ok | {aborted, any()}.
@@ -81,7 +87,7 @@ create_tag(notfound) ->
     {aborted, <<"invalid tag: notfound">>};
 create_tag(Tag) ->
     F = fun() ->
-            TagR = #volmgr_tags{id=Tag},
+            TagR = #volmgr_tags{id=Tag, active=true},
             mnesia:write(TagR)
         end,
     mnesia:activity(transaction, F).
@@ -89,7 +95,11 @@ create_tag(Tag) ->
 -spec retrieve_tag(Tag :: atom()) -> atom() | notfound.
 retrieve_tag(Tag) ->
     F = fun() ->
-            TagR = #volmgr_tags{id=Tag},
-            mnesia:write(TagR)
+            case mnesia:read({volmgr_tags, Tag}) of
+                [#volmgr_tags{id=Tag, active=A}] ->
+                    {Tag, A};
+                [] ->
+                    notfound
+            end
         end,
     mnesia:activity(transaction, F).
