@@ -4,8 +4,12 @@
          install/1,
          create_person/4,
          retrieve_person/1,
+         retrieve_people/0,
          create_tag/1,
-         retrieve_tag/1]).
+         create_tags/1,
+         retrieve_tag/1,
+         retrieve_tags/0
+        ]).
 
 -include("volunteer_mgr.hrl").
 
@@ -82,6 +86,21 @@ retrieve_person(Id) ->
         end,
     mnesia:activity(transaction, F).
 
+-spec retrieve_people() -> list(person()) | list().
+retrieve_people() ->
+    I = fun(#volmgr_people{id=Id, active=A,
+                           first=F, last=L,
+                           phone=P, email=E}, Acc)->
+            Person = #person{id=Id, active=A,
+                             first=F, last=L,
+                             phone=P, email=E},
+	        [Person|Acc]
+	    end,
+	F = fun() ->
+	        mnesia:foldl(I, [], volmgr_people)
+	    end,
+	mnesia:activity(transaction, F).
+
 -spec create_tag(Tag :: atom()) -> ok | {aborted, any()}.
 create_tag(notfound) ->
     {aborted, <<"invalid tag: notfound">>};
@@ -89,6 +108,20 @@ create_tag(Tag) ->
     F = fun() ->
             TagR = #volmgr_tags{id=Tag, active=true},
             mnesia:write(TagR)
+        end,
+    mnesia:activity(transaction, F).
+
+-spec create_tags(Tags :: list(atom())) -> ok | {aborted, any()}.
+create_tags(Tags) ->
+    Records = [#volmgr_tags{id=Tag, active=true} || Tag <- Tags],
+    F = fun() ->
+            Writer = fun W([]) ->
+                         ok;
+                     W([Record|T]) ->
+                         mnesia:write(Record),
+                         W(T)
+                     end,
+            Writer(Records)
         end,
     mnesia:activity(transaction, F).
 
@@ -103,3 +136,13 @@ retrieve_tag(Tag) ->
             end
         end,
     mnesia:activity(transaction, F).
+
+-spec retrieve_tags() -> list(atom()) | list().
+retrieve_tags() ->
+    I = fun(#volmgr_tags{id=T, active=A}, Acc)->
+	        [{T, A}|Acc]
+	    end,
+	F = fun() ->
+	        mnesia:foldl(I, [], volmgr_tags)
+	    end,
+	mnesia:activity(transaction, F).
