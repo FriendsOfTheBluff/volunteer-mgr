@@ -33,11 +33,12 @@ create_and_retrieve_person_by_id(_) ->
     ok = volmgr_db:create_person(First, Last, Phone, Email),
     notfound = volmgr_db:retrieve_person(<<"does-not-exist">>),
     Id = <<"Abooey-Bob">>,
-    #person{id=Id, first=First, last=Last,
+    #person{id=Id, active=true,
+            first=First, last=Last,
             phone=Phone, email=Email} = volmgr_db:retrieve_person(Id).
 
 create_and_retrieve_tag_by_id(_) ->
     Tag = 'trail-work',
     ok = volmgr_db:create_tag(Tag),
     notfound = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
-    Tag = volmgr_db:retrieve_tag(Tag).
+    {Tag, true} = volmgr_db:retrieve_tag(Tag).
