@@ -117,16 +117,13 @@ create_tag(Tag) ->
 -spec create_tags(Tags :: list(atom())) -> ok | {aborted, any()}.
 create_tags(Tags) ->
     Records = [#volmgr_tags{id=Tag, active=true} || Tag <- Tags],
-    F = fun() ->
-            Writer = fun W([]) ->
-                         ok;
-                     W([Record|T]) ->
-                         mnesia:write(Record),
-                         W(T)
-                     end,
-            Writer(Records)
-        end,
-    mnesia:activity(transaction, F).
+    Writer = fun W([]) ->
+                 ok;
+             W([Record|T]) ->
+                 mnesia:write(Record),
+                 W(T)
+             end,
+    mnesia:activity(transaction, Writer, [Records], mnesia).
 
 -spec retrieve_tag(Tag :: atom()) -> atom() | notfound.
 retrieve_tag(Tag) ->
