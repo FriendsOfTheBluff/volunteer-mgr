@@ -4,6 +4,7 @@
 
 -include("volunteer_mgr.hrl").
 
+-define(PRIVDIR, code:priv_dir(volunteer_mgr)).
 -define(COMPILE_OPTS, [{out_dir, ?PRIVDIR ++ "/templates-compiled/"}]).
 
 http_start() ->

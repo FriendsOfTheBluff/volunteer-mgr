@@ -4,7 +4,6 @@ ebin/
 log*/
 .rebar/
 .rebar3/
-priv/mnesia/
 
 _*
 *.beam

@@ -3,6 +3,7 @@
 -export([start/0,
          init_tables/0,
          init_tables/1,
+         init_schema/0,
          create_person/5,
          retrieve_person/1,
          retrieve_people/0,
@@ -50,6 +51,11 @@ init_tables(StorageType) ->
               ],
     {atomic, ok} = mnesia:create_table(volmgr_tags, VolmgrTagsOpts),
     ok.
+
+-spec init_schema() -> ok.
+init_schema() ->
+    io:format("Creating mnesia schema in: ~p~n", [mnesia:system_info(directory)]),
+    handle_create_schema(mnesia:create_schema([node()])).
 
 -spec create_person(First :: binary(),
                     Last :: binary(),
@@ -148,3 +154,14 @@ retrieve_tags() ->
 -spec tables() -> list(atom()).
 tables() ->
     [volmgr_people, volmgr_tags].
+
+handle_create_schema(ok) ->
+    ok = mnesia:start(),
+    handle_init_tables(volmgr_db:init_tables(disc_copies));
+handle_create_schema(Err) ->
+    io:format(standard_error, "Create schema unexpected result: ~p~n", [Err]).
+
+handle_init_tables(ok) ->
+    ok;
+handle_init_tables(Err) ->
+    io:format(standard_error, "Init tables unexpected result: ~p~n", [Err]).
