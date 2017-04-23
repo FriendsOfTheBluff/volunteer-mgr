@@ -157,11 +157,6 @@ tables() ->
 
 handle_create_schema(ok) ->
     ok = mnesia:start(),
-    handle_init_tables(volmgr_db:init_tables(disc_copies));
+    ok = volmgr_db:init_tables(disc_copies);
 handle_create_schema(Err) ->
     io:format(standard_error, "Create schema unexpected result: ~p~n", [Err]).
-
-handle_init_tables(ok) ->
-    ok;
-handle_init_tables(Err) ->
-    io:format(standard_error, "Init tables unexpected result: ~p~n", [Err]).
