@@ -3,7 +3,7 @@
 -export([start/2, stop/1]).
 
 start(_Type, _StartArgs) ->
-    ok = mnesia:wait_for_tables(volmgr_db:tables(), 5000),
+    ok = volmgr_db:start(),
     {ok, _} = volunteer_mgr:http_start(),
     volunteer_mgr_sup:start_link().
 

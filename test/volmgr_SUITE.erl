@@ -21,14 +21,13 @@ all() -> [
          ].
 
 init_per_suite(Config) ->
-    Priv = ?config(priv_dir, Config),
-    ok = application:set_env(mnesia, dir, Priv),
-    ok = volmgr_db:install([node()]),
+    ok = mnesia:start(),
+    ok = volmgr_db:init_tables(),
     {ok, _Apps} = application:ensure_all_started(volunteer_mgr),
     Config.
 
-end_per_suite(_Config) ->
-    application:stop(mnesia).
+end_per_suite(Config) ->
+    Config.
 
 create_and_retrieve_person_by_id(_) ->
     First = <<"Bob">>,
