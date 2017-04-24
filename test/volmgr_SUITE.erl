@@ -8,16 +8,22 @@
          init_per_suite/1,
          end_per_suite/1,
          create_and_retrieve_person_by_id/1,
+         create_person_with_unknown_tag/1,
          retrieve_all_people/1,
          create_and_retrieve_tag_by_id/1,
-         retrieve_all_tags/1
+         creating_tag_with_reserved_word_errors/1,
+         retrieve_all_tags/1,
+         ensure_tags_returns_notfound/1
         ]).
 
 all() -> [
           create_and_retrieve_person_by_id,
+          create_person_with_unknown_tag,
           retrieve_all_people,
           create_and_retrieve_tag_by_id,
-          retrieve_all_tags
+          creating_tag_with_reserved_word_errors,
+          retrieve_all_tags,
+          ensure_tags_returns_notfound
          ].
 
 init_per_suite(Config) ->
@@ -30,16 +36,25 @@ end_per_suite(Config) ->
     Config.
 
 create_and_retrieve_person_by_id(_) ->
-    First = <<"Bob">>,
-    Last = <<"Abooey">>,
+    First = <<"First1">>,
+    Last = <<"Last1">>,
     Phone = {345, 555, 1212},
-    Email = <<"bob@abooey.com">>,
+    Email = <<"first1@last1.com">>,
     Notes = [<<"Note 1">>, <<"Note 2">>],
     ok = volmgr_db:create_person(First, Last, Phone, Email, Notes),
-    notfound = volmgr_db:retrieve_person(<<"does-not-exist">>),
-    Id = <<"Abooey-Bob">>,
+    {error, notfound} = volmgr_db:retrieve_person(<<"does-not-exist">>),
+    Id = <<"Last1-First1">>,
     #person{id=Id, first=First, last=Last,
             phone=Phone, email=Email, notes=Notes} = volmgr_db:retrieve_person(Id).
+
+create_person_with_unknown_tag(_) ->
+    First = <<"First2">>,
+    Last = <<"Last2">>,
+    Phone = {345, 555, 1212},
+    Email = <<"first2@last2.com">>,
+    Notes = [<<"Note 1">>, <<"Note 2">>],
+    Tags = [unknown1, unknown2],
+    {error, notfound} = volmgr_db:create_person(First, Last, Phone, Email, Notes, Tags).
 
 retrieve_all_people(_) ->
     First = <<"Frank">>,
@@ -60,12 +75,32 @@ retrieve_all_people(_) ->
 create_and_retrieve_tag_by_id(_) ->
     Tag = foo,
     ok = volmgr_db:create_tag(Tag),
-    notfound = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
+    {error, notfound} = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
     {Tag, true} = volmgr_db:retrieve_tag(Tag).
+
+creating_tag_with_reserved_word_errors(_) ->
+    % The following aren't reserved, but we don't want them as tags since they have meaning
+    Bad = ['ok', 'error', 'notfound', 'undefined'],
+    % http://erlang.org/doc/reference_manual/introduction.html
+    Res = ['after', 'and', 'andalso',
+           'band', 'begin', 'bnot', 'bor', 'bsl', 'bsr', 'bxor',
+           'case', 'catch', 'cond',
+           'div', 'end', 'fun', 'if', 'let', 'not',
+           'of', 'or', 'orelse',
+           'receive', 'rem', 'try', 'when', 'xor'],
+    Pred = fun(R) -> {error, invalid_tag} =:= volmgr_db:create_tag(R) end,
+    true = lists:all(Pred, Bad ++ Res).
 
 retrieve_all_tags(_) ->
     Tags = [foo, bar, baz, bat, frazzle],
     Want = [{T, true} || T <- Tags],
     ok = volmgr_db:create_tags(Tags),
     Got = volmgr_db:retrieve_tags(),
-    true = lists:sort(Want) =:= lists:sort(Got).
+    Pred = fun(W) ->
+               true =:= lists:member(W, Got)
+           end,
+    true = lists:all(Pred, Want).
+
+ensure_tags_returns_notfound(_) ->
+    Tags = [foo, bar, you_aint_gonna_find_this],
+    {error, notfound} = volmgr_db:ensure_tags(Tags).
