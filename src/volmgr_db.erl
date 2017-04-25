@@ -7,6 +7,7 @@
          create_person/4, create_person/5, create_person/6,
          retrieve_person/1,
          retrieve_people/0,
+         retrieve_people_by_tag/1,
          create_tag/1,
          create_tags/1,
          retrieve_tag/1,
@@ -174,6 +175,10 @@ retrieve_people() ->
 	        mnesia:foldl(I, [], volmgr_people)
 	    end,
 	mnesia:activity(transaction, F).
+
+-spec retrieve_people_by_tag(atom()) -> list(person()) | list().
+retrieve_people_by_tag(_Tag) ->
+    [].
 
 -spec create_tag(Tag :: atom()) -> ok | {error, any()} | no_return().
 create_tag(Tag) ->
