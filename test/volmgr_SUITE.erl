@@ -69,7 +69,7 @@ retrieve_all_people(_) ->
     Want = #person{id=WantId, active=true,
                    first=First, last=Last,
                    phone=Phone, email=Email},
-    Got = volmgr_db_people:retrieve_people(),
+    Got = volmgr_db_people:retrieve(),
     Pred = fun(Item) ->
                Item =:= Want
            end,
@@ -94,7 +94,7 @@ retrieve_people_by_tag(_) ->
                     first=F2, last=L2,
                     phone=P2, email=E2},
     ok = volmgr_db_people:create(F2, L2, P2, E2, [], [retrieve_people_by_tag]),
-    Got = volmgr_db_people:retrieve_people_by_tag(retrieve_people_by_tag),
+    Got = volmgr_db_people:retrieve_by_tag(retrieve_people_by_tag),
     true = lists:member(Want1, Got),
     true = lists:member(Want2, Got).
 

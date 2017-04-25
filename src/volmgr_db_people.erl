@@ -2,8 +2,8 @@
 
 -export([create/4, create/5, create/6,
          retrieve/1,
-         retrieve_people/0,
-         retrieve_people_by_tag/1
+         retrieve/0,
+         retrieve_by_tag/1
         ]).
 
 -include_lib("stdlib/include/qlc.hrl").
@@ -80,26 +80,26 @@ create_id(First, Last) ->
 retrieve(Id) ->
     F = fun() ->
             case mnesia:read({volmgr_people, Id}) of
-                [VP=#volmgr_people{}] -> make_person(VP);
+                [VP=#volmgr_people{}] -> to_entity(VP);
                 [] -> {error, notfound}
             end
         end,
     mnesia:activity(transaction, F).
 
--spec retrieve_people() -> list(person()) | list().
-retrieve_people() ->
+-spec retrieve() -> list(person()) | list().
+retrieve() ->
     I = fun(VP=#volmgr_people{}, Acc)->
-	        [make_person(VP)|Acc]
+	        [to_entity(VP)|Acc]
 	    end,
 	F = fun() ->
 	        mnesia:foldl(I, [], volmgr_people)
 	    end,
 	mnesia:activity(transaction, F).
 
--spec retrieve_people_by_tag(tag()) -> list(person()) | list().
-retrieve_people_by_tag(Tag) ->
+-spec retrieve_by_tag(tag()) -> list(person()) | list().
+retrieve_by_tag(Tag) ->
     F = fun() ->
-            Q = qlc:q([make_person(VP) || VPT <- mnesia:table(volmgr_people_tags),
+            Q = qlc:q([to_entity(VP) || VPT <- mnesia:table(volmgr_people_tags),
                                           VP <- mnesia:table(volmgr_people),
                                           VPT#volmgr_people_tags.volmgr_tags_id =:= Tag,
                                           VPT#volmgr_people_tags.volmgr_people_id =:= VP#volmgr_people.id]),
@@ -107,6 +107,6 @@ retrieve_people_by_tag(Tag) ->
         end,
     mnesia:activity(transaction, F).
 
--spec make_person(#volmgr_people{}) -> #person{}.
-make_person(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
+-spec to_entity(#volmgr_people{}) -> #person{}.
+to_entity(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
     #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}.
