@@ -1,1 +1,33 @@
-PEOPLE TEMPLATE
+<!-- vim:sw=2:ts=2
+-->
+<html>
+<body>
+<form action="/people" method="POST">
+  <div>
+    <label for="first_name">First Name:</label>
+    <input type="text" name="first">
+  </div>
+  <div>
+    <label for="last_name">Last Name:</label>
+    <input type="text" name="last">
+  </div>
+  <div>
+    <label for="email">Email:</label>
+    <input type="email" name="email">
+  </div>
+  <div>
+    <label for="notes">Notes:</label>
+    <textarea name="notes"></textarea>
+  </div>
+  <div>
+    <label for="tags">Tags:</label>
+    <input type="checkbox" name="tags" value="tag1">Tag 1</input>
+    <input type="checkbox" name="tags" value="tag2">Tag 2</input>
+    <input type="checkbox" name="tags" value="tag3">Tag 3</input>
+  </div>
+  <div class="button">
+    <button type="submit">Save</button>
+  </div>
+</form>
+</html>
+</body>
