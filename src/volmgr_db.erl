@@ -1,9 +1,6 @@
 -module(volmgr_db).
 
 -export([start/0,
-         init_tables/0,
-         init_tables/1,
-         init_schema/0,
          create_person/4, create_person/5, create_person/6,
          retrieve_person/1,
          retrieve_people/0,
@@ -16,24 +13,9 @@
         ]).
 
 -include_lib("stdlib/include/qlc.hrl").
--include("volunteer_mgr.hrl").
-
--record(volmgr_people,
-        {id :: binary(),
-         active :: boolean(),
-         first :: binary(),
-         last :: binary(),
-         phone :: phone(),
-         email :: binary(),
-         notes :: list(binary())
-        }).
-
--record(volmgr_people_tags,
-        {volmgr_tags_id :: atom(),
-         volmgr_people_id :: binary()
-        }).
-
--record(volmgr_tags, {id :: atom(), active :: boolean()}).
+-include("types.hrl").
+-include("db.hrl").
+-include("entities.hrl").
 
 -spec start() ->
     ok | {timeout, list(term())} | {error, any()}.
@@ -44,53 +26,16 @@ start() ->
 tables() ->
     [volmgr_people, volmgr_people_tags, volmgr_tags].
 
--spec init_tables() -> ok.
-init_tables() ->
-    init_tables(ram_copies).
-
--spec init_tables(disc_copies | ram_copies) -> ok.
-init_tables(StorageType) ->
-    VolmgrPeopleOpts = [
-               {attributes, record_info(fields, volmgr_people)},
-               {type, ordered_set},
-               {StorageType, [node()]}
-              ],
-    {atomic, ok} = mnesia:create_table(volmgr_people, VolmgrPeopleOpts),
-    VolmgrPeopleTagsOpts = [
-               {attributes, record_info(fields, volmgr_people_tags)},
-               {type, bag},
-               {StorageType, [node()]}
-              ],
-    {atomic, ok} = mnesia:create_table(volmgr_people_tags, VolmgrPeopleTagsOpts),
-    VolmgrTagsOpts = [
-               {attributes, record_info(fields, volmgr_tags)},
-               {type, set},
-               {StorageType, [node()]}
-              ],
-    {atomic, ok} = mnesia:create_table(volmgr_tags, VolmgrTagsOpts),
-    ok.
-
--spec init_schema() -> ok.
-init_schema() ->
-    io:format("Creating mnesia schema in: ~p~n", [mnesia:system_info(directory)]),
-    handle_create_schema(mnesia:create_schema([node()])).
-
-handle_create_schema(ok) ->
-    ok = mnesia:start(),
-    ok = volmgr_db:init_tables(disc_copies);
-handle_create_schema(Err) ->
-    io:format(standard_error, "Create schema unexpected result: ~p~n", [Err]).
-
 -spec create_person(First :: binary(),
                     Last :: binary(),
-                    Phone :: {integer(), integer(), integer()},
+                    Phone :: phone(),
                     Email :: binary()) -> ok | {aborted, any()}.
 create_person(First, Last, Phone, Email) ->
     create_person(First, Last, Phone, Email, [], []).
 
 -spec create_person(First :: binary(),
                     Last :: binary(),
-                    Phone :: {integer(), integer(), integer()},
+                    Phone :: phone(),
                     Email :: binary(),
                     Notes :: list(binary())) -> ok | {aborted, any()}.
 create_person(First, Last, Phone, Email, Notes) ->
@@ -98,10 +43,10 @@ create_person(First, Last, Phone, Email, Notes) ->
 
 -spec create_person(First :: binary(),
                     Last :: binary(),
-                    Phone :: {integer(), integer(), integer()},
+                    Phone :: phone(),
                     Email :: binary(),
                     Notes :: list(binary()),
-                    Tags :: list(atom())) -> ok | {error, notfound} | no_return().
+                    Tags :: list(tag())) -> ok | {error, notfound} | no_return().
 create_person(First, Last, Phone, Email, Notes, _Tags=[]) ->
     Id = create_person_id(First, Last),
     F = fun() ->
@@ -166,7 +111,7 @@ retrieve_people() ->
 	    end,
 	mnesia:activity(transaction, F).
 
--spec retrieve_people_by_tag(atom()) -> list(person()) | list().
+-spec retrieve_people_by_tag(tag()) -> list(person()) | list().
 retrieve_people_by_tag(Tag) ->
     F = fun() ->
             Q = qlc:q([make_person(VP) || VPT <- mnesia:table(volmgr_people_tags),
@@ -181,11 +126,11 @@ retrieve_people_by_tag(Tag) ->
 make_person(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
     #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}.
 
--spec create_tag(Tag :: atom()) -> ok | {error, any()} | no_return().
+-spec create_tag(Tag :: tag()) -> ok | {error, any()} | no_return().
 create_tag(Tag) ->
     create_tags([Tag]).
 
--spec create_tags(Tags :: list(atom())) -> ok | {aborted, any()}.
+-spec create_tags(Tags :: list(tag())) -> ok | {aborted, any()}.
 create_tags(Tags) ->
     handle_validate_tags(validate_tags(Tags), Tags).
 
@@ -201,7 +146,7 @@ handle_validate_tags(ok, Tags) ->
              end,
     mnesia:activity(transaction, Writer, [Records], mnesia).
 
--spec validate_tags(Tags :: list(atom())) -> ok | {error, invalid_tag}.
+-spec validate_tags(Tags :: list(tag())) -> ok | {error, invalid_tag}.
 validate_tags(Tags) ->
     Bad = ['ok', 'error', 'notfound', 'undefined'],
     Pred = fun(T) ->
@@ -212,7 +157,7 @@ validate_tags(Tags) ->
         false -> ok
     end.
 
--spec retrieve_tag(Tag :: atom()) -> atom() | {error, notfound}.
+-spec retrieve_tag(Tag :: tag()) -> tag() | {error, notfound}.
 retrieve_tag(Tag) ->
     F = fun() ->
             case mnesia:read({volmgr_tags, Tag}) of
@@ -224,7 +169,7 @@ retrieve_tag(Tag) ->
         end,
     mnesia:activity(transaction, F).
 
--spec retrieve_tags() -> list(atom()) | list().
+-spec retrieve_tags() -> list(tag()) | list().
 retrieve_tags() ->
     I = fun(#volmgr_tags{id=T, active=A}, Acc)->
 	        [{T, A}|Acc]
@@ -234,7 +179,7 @@ retrieve_tags() ->
 	    end,
 	mnesia:activity(transaction, F).
 
--spec ensure_tags(list(atom())) -> ok | {error, notfound} | {error, {any(), any()}}.
+-spec ensure_tags(list(tag())) -> ok | {error, notfound} | {error, {any(), any()}}.
 ensure_tags(Tags) ->
     try
         do_ensure_tags(Tags)
@@ -246,7 +191,7 @@ ensure_tags(Tags) ->
     end.
 
 %% private
--spec do_ensure_tags(list(atom())) -> ok | no_return().
+-spec do_ensure_tags(list(tag())) -> ok | no_return().
 do_ensure_tags(Tags) ->
     % NOTE: this is a private function that does not catch any
     % mnesia exit exceptions, so it can be used within a transaction

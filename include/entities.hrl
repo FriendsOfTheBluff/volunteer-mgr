@@ -1,5 +1,3 @@
--type phone() :: {integer(), integer(), integer()}.
-
 -record(person,
         {id :: binary(),
          active :: boolean(),

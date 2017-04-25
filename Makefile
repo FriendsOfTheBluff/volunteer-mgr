@@ -16,7 +16,7 @@ $(SCHEMA_DIR)/schema.DAT:
 		-mnesia debug verbose \
 		-mnesia dir '"$(SCHEMA_DIR)"' \
 		-mnesia schema_location disc \
-		-eval 'volmgr_db:init_schema()' \
+		-eval 'volmgr_db_schema:init_schema()' \
 		-eval 'init:stop(0)'
 
 include rebar3.mk

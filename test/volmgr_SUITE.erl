@@ -1,6 +1,7 @@
 -module(volmgr_SUITE).
 
--include("volunteer_mgr.hrl").
+-include("types.hrl").
+-include("entities.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 
@@ -30,7 +31,7 @@ all() -> [
 
 init_per_suite(Config) ->
     ok = mnesia:start(),
-    ok = volmgr_db:init_tables(),
+    ok = volmgr_db_schema:init_tables(),
     {ok, _Apps} = application:ensure_all_started(volunteer_mgr),
     Config.
 
