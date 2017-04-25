@@ -15,6 +15,7 @@
          ensure_tags/1
         ]).
 
+-include_lib("stdlib/include/qlc.hrl").
 -include("volunteer_mgr.hrl").
 
 -record(volmgr_people,
@@ -149,27 +150,16 @@ create_person_id(First, Last) ->
 retrieve_person(Id) ->
     F = fun() ->
             case mnesia:read({volmgr_people, Id}) of
-                [#volmgr_people{id=Id, active=A,
-                                first=F, last=L,
-                                phone=P, email=E, notes=N}] ->
-                    #person{id=Id, active=A,
-                            first=F, last=L,
-                            phone=P, email=E, notes=N};
-                [] ->
-                    {error, notfound}
+                [VP=#volmgr_people{}] -> make_person(VP);
+                [] -> {error, notfound}
             end
         end,
     mnesia:activity(transaction, F).
 
 -spec retrieve_people() -> list(person()) | list().
 retrieve_people() ->
-    I = fun(#volmgr_people{id=Id, active=A,
-                           first=F, last=L,
-                           phone=P, email=E, notes=N}, Acc)->
-            Person = #person{id=Id, active=A,
-                             first=F, last=L,
-                             phone=P, email=E, notes=N},
-	        [Person|Acc]
+    I = fun(VP=#volmgr_people{}, Acc)->
+	        [make_person(VP)|Acc]
 	    end,
 	F = fun() ->
 	        mnesia:foldl(I, [], volmgr_people)
@@ -179,24 +169,17 @@ retrieve_people() ->
 -spec retrieve_people_by_tag(atom()) -> list(person()) | list().
 retrieve_people_by_tag(Tag) ->
     F = fun() ->
-            case mnesia:read({volmgr_people_tags, Tag}) of
-                [] -> {error, notfound};
-                VolmgrPeopleTagsRecords ->
-                    Reader = fun R([], Acc) ->
-                                 Acc;
-                             R([#volmgr_people_tags{volmgr_people_id=Id}|T], Acc) ->
-                                 case mnesia:read({volmgr_people, Id}) of
-                                     [#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}] ->
-                                         Person = #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N},
-                                         R(T, [Person|Acc]);
-                                     [] ->
-                                         R(T, Acc)
-                                 end
-                             end,
-                    Reader(VolmgrPeopleTagsRecords, [])
-            end
+            Q = qlc:q([make_person(VP) || VPT <- mnesia:table(volmgr_people_tags),
+                                          VP <- mnesia:table(volmgr_people),
+                                          VPT#volmgr_people_tags.volmgr_tags_id =:= Tag,
+                                          VPT#volmgr_people_tags.volmgr_people_id =:= VP#volmgr_people.id]),
+            qlc:e(Q)
         end,
     mnesia:activity(transaction, F).
+
+-spec make_person(#volmgr_people{}) -> #person{}.
+make_person(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
+    #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}.
 
 -spec create_tag(Tag :: atom()) -> ok | {error, any()} | no_return().
 create_tag(Tag) ->
