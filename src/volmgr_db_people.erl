@@ -1,8 +1,7 @@
 -module(volmgr_db_people).
 
 -export([create/4, create/5, create/6,
-         retrieve/1,
-         retrieve/0,
+         retrieve/0, retrieve/1,
          retrieve_by_tag/1
         ]).
 
@@ -48,7 +47,7 @@ create(First, Last, Phone, Email, Notes, _Tags=[]) ->
 create(First, Last, Phone, Email, Notes, Tags) ->
     Id = create_id(First, Last),
     F = fun() ->
-            volmgr_db:do_ensure_tags(Tags),
+            volmgr_db_tags:ensure_transactional(Tags),
             Person = #volmgr_people{id=Id,
                                     active=true,
                                     first=First,

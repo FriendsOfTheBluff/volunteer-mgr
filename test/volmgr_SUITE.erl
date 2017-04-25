@@ -77,7 +77,7 @@ retrieve_all_people(_) ->
 
 retrieve_people_by_tag(_) ->
     Tag = retrieve_people_by_tag,
-    ok = volmgr_db:create_tag(Tag),
+    ok = volmgr_db_tags:create(Tag),
     F1 = <<"F1">>,
     L1 = <<"L1">>,
     P1 = {1, 555, 1212},
@@ -100,9 +100,9 @@ retrieve_people_by_tag(_) ->
 
 create_and_retrieve_tag_by_id(_) ->
     Tag = foo,
-    ok = volmgr_db:create_tag(Tag),
-    {error, notfound} = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
-    {Tag, true} = volmgr_db:retrieve_tag(Tag).
+    ok = volmgr_db_tags:create(Tag),
+    {error, notfound} = volmgr_db_tags:retrieve('unknown-tag-should-not-be-saved'),
+    {Tag, true} = volmgr_db_tags:retrieve(Tag).
 
 creating_tag_with_reserved_word_errors(_) ->
     % The following aren't reserved, but we don't want them as tags since they have meaning
@@ -114,14 +114,14 @@ creating_tag_with_reserved_word_errors(_) ->
            'div', 'end', 'fun', 'if', 'let', 'not',
            'of', 'or', 'orelse',
            'receive', 'rem', 'try', 'when', 'xor'],
-    Pred = fun(R) -> {error, invalid_tag} =:= volmgr_db:create_tag(R) end,
+    Pred = fun(R) -> {error, invalid_tag} =:= volmgr_db_tags:create(R) end,
     true = lists:all(Pred, Bad ++ Res).
 
 retrieve_all_tags(_) ->
     Tags = [foo, bar, baz, bat, frazzle],
     Want = [{T, true} || T <- Tags],
-    ok = volmgr_db:create_tags(Tags),
-    Got = volmgr_db:retrieve_tags(),
+    ok = volmgr_db_tags:create(Tags),
+    Got = volmgr_db_tags:retrieve(),
     Pred = fun(W) ->
                true =:= lists:member(W, Got)
            end,
@@ -129,4 +129,4 @@ retrieve_all_tags(_) ->
 
 ensure_tags_returns_notfound(_) ->
     Tags = [foo, bar, you_aint_gonna_find_this],
-    {error, notfound} = volmgr_db:ensure_tags(Tags).
+    {error, notfound} = volmgr_db_tags:ensure(Tags).
