@@ -1,6 +1,7 @@
 -module(volmgr_SUITE).
 
--include("volunteer_mgr.hrl").
+-include("types.hrl").
+-include("entities.hrl").
 
 -include_lib("common_test/include/ct.hrl").
 
@@ -30,7 +31,7 @@ all() -> [
 
 init_per_suite(Config) ->
     ok = mnesia:start(),
-    ok = volmgr_db:init_tables(),
+    ok = volmgr_db_schema:init_tables(),
     {ok, _Apps} = application:ensure_all_started(volunteer_mgr),
     Config.
 
@@ -43,11 +44,11 @@ create_and_retrieve_person_by_id(_) ->
     Phone = {345, 555, 1212},
     Email = <<"first1@last1.com">>,
     Notes = [<<"Note 1">>, <<"Note 2">>],
-    ok = volmgr_db:create_person(First, Last, Phone, Email, Notes),
-    {error, notfound} = volmgr_db:retrieve_person(<<"does-not-exist">>),
+    ok = volmgr_db_people:create(First, Last, Phone, Email, Notes),
+    {error, notfound} = volmgr_db_people:retrieve(<<"does-not-exist">>),
     Id = <<"Last1-First1">>,
     #person{id=Id, first=First, last=Last,
-            phone=Phone, email=Email, notes=Notes} = volmgr_db:retrieve_person(Id).
+            phone=Phone, email=Email, notes=Notes} = volmgr_db_people:retrieve(Id).
 
 create_person_with_unknown_tag(_) ->
     First = <<"First2">>,
@@ -56,19 +57,19 @@ create_person_with_unknown_tag(_) ->
     Email = <<"first2@last2.com">>,
     Notes = [<<"Note 1">>, <<"Note 2">>],
     Tags = [unknown1, unknown2],
-    {error, notfound} = volmgr_db:create_person(First, Last, Phone, Email, Notes, Tags).
+    {error, notfound} = volmgr_db_people:create(First, Last, Phone, Email, Notes, Tags).
 
 retrieve_all_people(_) ->
     First = <<"Frank">>,
     Last = <<"Barker">>,
     Phone = {456, 555, 1212},
     Email = <<"frankg@gmail.com">>,
-    ok = volmgr_db:create_person(First, Last, Phone, Email, []),
+    ok = volmgr_db_people:create(First, Last, Phone, Email, []),
     WantId = <<"Barker-Frank">>,
     Want = #person{id=WantId, active=true,
                    first=First, last=Last,
                    phone=Phone, email=Email},
-    Got = volmgr_db:retrieve_people(),
+    Got = volmgr_db_people:retrieve(),
     Pred = fun(Item) ->
                Item =:= Want
            end,
@@ -76,7 +77,7 @@ retrieve_all_people(_) ->
 
 retrieve_people_by_tag(_) ->
     Tag = retrieve_people_by_tag,
-    ok = volmgr_db:create_tag(Tag),
+    ok = volmgr_db_tags:create(Tag),
     F1 = <<"F1">>,
     L1 = <<"L1">>,
     P1 = {1, 555, 1212},
@@ -84,7 +85,7 @@ retrieve_people_by_tag(_) ->
     Want1 = #person{id = <<"L1-F1">>, active=true,
                     first=F1, last=L1,
                     phone=P1, email=E1},
-    ok = volmgr_db:create_person(F1, L1, P1, E1, [], [retrieve_people_by_tag]),
+    ok = volmgr_db_people:create(F1, L1, P1, E1, [], [retrieve_people_by_tag]),
     F2 = <<"F2">>,
     L2 = <<"L2">>,
     P2 = {2, 555, 1212},
@@ -92,16 +93,16 @@ retrieve_people_by_tag(_) ->
     Want2 = #person{id = <<"L2-F2">>, active=true,
                     first=F2, last=L2,
                     phone=P2, email=E2},
-    ok = volmgr_db:create_person(F2, L2, P2, E2, [], [retrieve_people_by_tag]),
-    Got = volmgr_db:retrieve_people_by_tag(retrieve_people_by_tag),
+    ok = volmgr_db_people:create(F2, L2, P2, E2, [], [retrieve_people_by_tag]),
+    Got = volmgr_db_people:retrieve_by_tag(retrieve_people_by_tag),
     true = lists:member(Want1, Got),
     true = lists:member(Want2, Got).
 
 create_and_retrieve_tag_by_id(_) ->
     Tag = foo,
-    ok = volmgr_db:create_tag(Tag),
-    {error, notfound} = volmgr_db:retrieve_tag('unknown-tag-should-not-be-saved'),
-    {Tag, true} = volmgr_db:retrieve_tag(Tag).
+    ok = volmgr_db_tags:create(Tag),
+    {error, notfound} = volmgr_db_tags:retrieve('unknown-tag-should-not-be-saved'),
+    {Tag, true} = volmgr_db_tags:retrieve(Tag).
 
 creating_tag_with_reserved_word_errors(_) ->
     % The following aren't reserved, but we don't want them as tags since they have meaning
@@ -113,14 +114,14 @@ creating_tag_with_reserved_word_errors(_) ->
            'div', 'end', 'fun', 'if', 'let', 'not',
            'of', 'or', 'orelse',
            'receive', 'rem', 'try', 'when', 'xor'],
-    Pred = fun(R) -> {error, invalid_tag} =:= volmgr_db:create_tag(R) end,
+    Pred = fun(R) -> {error, invalid_tag} =:= volmgr_db_tags:create(R) end,
     true = lists:all(Pred, Bad ++ Res).
 
 retrieve_all_tags(_) ->
     Tags = [foo, bar, baz, bat, frazzle],
     Want = [{T, true} || T <- Tags],
-    ok = volmgr_db:create_tags(Tags),
-    Got = volmgr_db:retrieve_tags(),
+    ok = volmgr_db_tags:create(Tags),
+    Got = volmgr_db_tags:retrieve(),
     Pred = fun(W) ->
                true =:= lists:member(W, Got)
            end,
@@ -128,4 +129,4 @@ retrieve_all_tags(_) ->
 
 ensure_tags_returns_notfound(_) ->
     Tags = [foo, bar, you_aint_gonna_find_this],
-    {error, notfound} = volmgr_db:ensure_tags(Tags).
+    {error, notfound} = volmgr_db_tags:ensure(Tags).
