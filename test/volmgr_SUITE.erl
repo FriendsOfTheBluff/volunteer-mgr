@@ -44,11 +44,11 @@ create_and_retrieve_person_by_id(_) ->
     Phone = {345, 555, 1212},
     Email = <<"first1@last1.com">>,
     Notes = [<<"Note 1">>, <<"Note 2">>],
-    ok = volmgr_db:create_person(First, Last, Phone, Email, Notes),
-    {error, notfound} = volmgr_db:retrieve_person(<<"does-not-exist">>),
+    ok = volmgr_db_people:create_person(First, Last, Phone, Email, Notes),
+    {error, notfound} = volmgr_db_people:retrieve_person(<<"does-not-exist">>),
     Id = <<"Last1-First1">>,
     #person{id=Id, first=First, last=Last,
-            phone=Phone, email=Email, notes=Notes} = volmgr_db:retrieve_person(Id).
+            phone=Phone, email=Email, notes=Notes} = volmgr_db_people:retrieve_person(Id).
 
 create_person_with_unknown_tag(_) ->
     First = <<"First2">>,
@@ -57,19 +57,19 @@ create_person_with_unknown_tag(_) ->
     Email = <<"first2@last2.com">>,
     Notes = [<<"Note 1">>, <<"Note 2">>],
     Tags = [unknown1, unknown2],
-    {error, notfound} = volmgr_db:create_person(First, Last, Phone, Email, Notes, Tags).
+    {error, notfound} = volmgr_db_people:create_person(First, Last, Phone, Email, Notes, Tags).
 
 retrieve_all_people(_) ->
     First = <<"Frank">>,
     Last = <<"Barker">>,
     Phone = {456, 555, 1212},
     Email = <<"frankg@gmail.com">>,
-    ok = volmgr_db:create_person(First, Last, Phone, Email, []),
+    ok = volmgr_db_people:create_person(First, Last, Phone, Email, []),
     WantId = <<"Barker-Frank">>,
     Want = #person{id=WantId, active=true,
                    first=First, last=Last,
                    phone=Phone, email=Email},
-    Got = volmgr_db:retrieve_people(),
+    Got = volmgr_db_people:retrieve_people(),
     Pred = fun(Item) ->
                Item =:= Want
            end,
@@ -85,7 +85,7 @@ retrieve_people_by_tag(_) ->
     Want1 = #person{id = <<"L1-F1">>, active=true,
                     first=F1, last=L1,
                     phone=P1, email=E1},
-    ok = volmgr_db:create_person(F1, L1, P1, E1, [], [retrieve_people_by_tag]),
+    ok = volmgr_db_people:create_person(F1, L1, P1, E1, [], [retrieve_people_by_tag]),
     F2 = <<"F2">>,
     L2 = <<"L2">>,
     P2 = {2, 555, 1212},
@@ -93,8 +93,8 @@ retrieve_people_by_tag(_) ->
     Want2 = #person{id = <<"L2-F2">>, active=true,
                     first=F2, last=L2,
                     phone=P2, email=E2},
-    ok = volmgr_db:create_person(F2, L2, P2, E2, [], [retrieve_people_by_tag]),
-    Got = volmgr_db:retrieve_people_by_tag(retrieve_people_by_tag),
+    ok = volmgr_db_people:create_person(F2, L2, P2, E2, [], [retrieve_people_by_tag]),
+    Got = volmgr_db_people:retrieve_people_by_tag(retrieve_people_by_tag),
     true = lists:member(Want1, Got),
     true = lists:member(Want2, Got).
 
