@@ -1,7 +1,7 @@
 -module(volmgr_db_people).
 
--export([create_person/4, create_person/5, create_person/6,
-         retrieve_person/1,
+-export([create/4, create/5, create/6,
+         retrieve/1,
          retrieve_people/0,
          retrieve_people_by_tag/1
         ]).
@@ -11,29 +11,29 @@
 -include("db.hrl").
 -include("entities.hrl").
 
--spec create_person(First :: binary(),
+-spec create(First :: binary(),
                     Last :: binary(),
                     Phone :: phone(),
                     Email :: binary()) -> ok | {aborted, any()}.
-create_person(First, Last, Phone, Email) ->
-    create_person(First, Last, Phone, Email, [], []).
+create(First, Last, Phone, Email) ->
+    create(First, Last, Phone, Email, [], []).
 
--spec create_person(First :: binary(),
+-spec create(First :: binary(),
                     Last :: binary(),
                     Phone :: phone(),
                     Email :: binary(),
                     Notes :: list(binary())) -> ok | {aborted, any()}.
-create_person(First, Last, Phone, Email, Notes) ->
-    create_person(First, Last, Phone, Email, Notes, []).
+create(First, Last, Phone, Email, Notes) ->
+    create(First, Last, Phone, Email, Notes, []).
 
--spec create_person(First :: binary(),
+-spec create(First :: binary(),
                     Last :: binary(),
                     Phone :: phone(),
                     Email :: binary(),
                     Notes :: list(binary()),
                     Tags :: list(tag())) -> ok | {error, notfound} | no_return().
-create_person(First, Last, Phone, Email, Notes, _Tags=[]) ->
-    Id = create_person_id(First, Last),
+create(First, Last, Phone, Email, Notes, _Tags=[]) ->
+    Id = create_id(First, Last),
     F = fun() ->
             Person = #volmgr_people{id=Id,
                                     active=true,
@@ -45,8 +45,8 @@ create_person(First, Last, Phone, Email, Notes, _Tags=[]) ->
             mnesia:write(Person)
         end,
     mnesia:activity(transaction, F);
-create_person(First, Last, Phone, Email, Notes, Tags) ->
-    Id = create_person_id(First, Last),
+create(First, Last, Phone, Email, Notes, Tags) ->
+    Id = create_id(First, Last),
     F = fun() ->
             volmgr_db:do_ensure_tags(Tags),
             Person = #volmgr_people{id=Id,
@@ -72,12 +72,12 @@ create_person(First, Last, Phone, Email, Notes, Tags) ->
         exit:{aborted, notfound} -> {error, notfound}
     end.
 
--spec create_person_id(First :: binary(), Last :: binary()) -> binary().
-create_person_id(First, Last) ->
+-spec create_id(First :: binary(), Last :: binary()) -> binary().
+create_id(First, Last) ->
     erlang:iolist_to_binary([Last, $-, First]).
 
--spec retrieve_person(Id :: binary()) -> person() | {error, notfound}.
-retrieve_person(Id) ->
+-spec retrieve(Id :: binary()) -> person() | {error, notfound}.
+retrieve(Id) ->
     F = fun() ->
             case mnesia:read({volmgr_people, Id}) of
                 [VP=#volmgr_people{}] -> make_person(VP);
