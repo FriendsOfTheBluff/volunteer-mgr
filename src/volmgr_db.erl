@@ -177,8 +177,26 @@ retrieve_people() ->
 	mnesia:activity(transaction, F).
 
 -spec retrieve_people_by_tag(atom()) -> list(person()) | list().
-retrieve_people_by_tag(_Tag) ->
-    [].
+retrieve_people_by_tag(Tag) ->
+    F = fun() ->
+            case mnesia:read({volmgr_people_tags, Tag}) of
+                [] -> {error, notfound};
+                VolmgrPeopleTagsRecords ->
+                    Reader = fun R([], Acc) ->
+                                 Acc;
+                             R([#volmgr_people_tags{volmgr_people_id=Id}|T], Acc) ->
+                                 case mnesia:read({volmgr_people, Id}) of
+                                     [#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}] ->
+                                         Person = #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N},
+                                         R(T, [Person|Acc]);
+                                     [] ->
+                                         R(T, Acc)
+                                 end
+                             end,
+                    Reader(VolmgrPeopleTagsRecords, [])
+            end
+        end,
+    mnesia:activity(transaction, F).
 
 -spec create_tag(Tag :: atom()) -> ok | {error, any()} | no_return().
 create_tag(Tag) ->
