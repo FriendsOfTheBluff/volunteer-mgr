@@ -21,9 +21,9 @@
   </div>
   <div>
     <label for="tags">Tags:</label>
-    <input type="checkbox" name="tags" value="tag1">Tag 1</input>
-    <input type="checkbox" name="tags" value="tag2">Tag 2</input>
-    <input type="checkbox" name="tags" value="tag3">Tag 3</input>
+    {% for tag in tags %}
+      <input type="checkbox" name="tags" value="{{ tag }}">{{ tag }}</input>
+    {% endfor %}
   </div>
   <div class="button">
     <button type="submit">Save</button>
