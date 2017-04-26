@@ -1,4 +1,4 @@
-.PHONY: all schema
+.PHONY: all schema shell
 
 PROJDIR := $(realpath $(CURDIR))
 
@@ -18,5 +18,8 @@ $(SCHEMA_DIR)/schema.DAT:
 		-mnesia schema_location disc \
 		-eval 'volmgr_db_schema:init_schema()' \
 		-eval 'init:stop(0)'
+
+shell:
+	@$(REBAR3) shell --name $(NODENAME)
 
 include rebar3.mk

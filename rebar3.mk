@@ -1,4 +1,4 @@
-.PHONY: clean compile distclean dialyzer rel run test
+.PHONY: clean compile distclean dialyzer rel run test rebar3_upgrade
 
 REBAR3_URL := https://s3.amazonaws.com/rebar3/rebar3
 
@@ -28,6 +28,9 @@ distclean: rebar3
 dialyzer: compile
 	@$(REBAR3) dialyzer
 
+rebar3_upgrade: rebar3
+	@$(REBAR3) local upgrade
+
 rel: rebar3
 	@$(REBAR3) release
 
@@ -35,6 +38,7 @@ run: rebar3
 	@$(REBAR3) shell
 
 test: compile
+	@$(REBAR3) eunit
 	@$(REBAR3) ct
 
 rebar3: $(REBAR3)

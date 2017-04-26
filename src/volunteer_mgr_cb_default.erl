@@ -1,7 +1,8 @@
--module(volunteer_mgr_default_router).
+-module(volunteer_mgr_cb_default).
+
 -export([init/2]).
 
-init(Req, Page) ->
+init(Req, State) ->
     {ok, ResponseBody} = volunteer_mgr_templates_index:render(),
     Reply = cowboy_req:reply(200, [{<<"content-type">>, <<"text/html">>}], ResponseBody, Req),
-    {ok, Reply, Page}.
+    {ok, Reply, State}.

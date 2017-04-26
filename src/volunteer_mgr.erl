@@ -2,7 +2,7 @@
 
 -export([http_start/0]).
 
--define(PRIVDIR, code:priv_dir(volunteer_mgr)).
+-define(PRIVDIR, code:priv_dir(?MODULE)).
 -define(COMPILE_OPTS, [{out_dir, ?PRIVDIR ++ "/templates-compiled/"}]).
 
 http_start() ->
@@ -26,9 +26,11 @@ do_cowboy_configure() ->
     {ok, Workers} = application:get_env(?MODULE, workers),
     Dispatch = cowboy_router:compile([
         {'_', [
-            {"/", volunteer_mgr_default_router, <<"index.html">>},
-            {"/static/[...]", cowboy_static, {priv_dir, volunteer_mgr, "static"}},
-            {"/[...]", cowboy_static, {priv_dir, volunteer_mgr, "pages"}}
+            {"/", volunteer_mgr_cb_default, no_state},
+            {"/people", volmgr_cb_people, no_state},
+            {"/tags", volmgr_cb_tags, no_state},
+            {"/static/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}},
+            {"/[...]", cowboy_static, {priv_dir, ?MODULE, "pages"}}
         ]}
     ]),
     {Ip, Port, Workers, Dispatch}.
