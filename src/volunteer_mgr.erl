@@ -28,6 +28,7 @@ do_cowboy_configure() ->
         {'_', [
             {"/", volunteer_mgr_cb_default, no_state},
             {"/people", volunteer_mgr_cb_people, no_state},
+            {"/tags", volunteer_mgr_cb_tags, no_state},
             {"/static/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}},
             {"/[...]", cowboy_static, {priv_dir, ?MODULE, "pages"}}
         ]}

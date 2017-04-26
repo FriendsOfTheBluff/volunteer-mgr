@@ -5,24 +5,24 @@
 <form action="/people" method="POST">
   <div>
     <label for="first_name">First Name:</label>
-    <input type="text" name="first">
+    <input type="text" id="first_name" name="first_name">
   </div>
   <div>
     <label for="last_name">Last Name:</label>
-    <input type="text" name="last">
+    <input type="text" id="last_name" name="last_name">
   </div>
   <div>
     <label for="email">Email:</label>
-    <input type="email" name="email">
+    <input type="email" id="email" name="email">
   </div>
   <div>
     <label for="notes">Notes:</label>
-    <textarea name="notes"></textarea>
+    <textarea name="notes" id="notes"></textarea>
   </div>
   <div>
     <label for="tags">Tags:</label>
     {% for tag in tags %}
-      <input type="checkbox" name="tags" value="{{ tag }}">{{ tag }}</input>
+      <label><input type="checkbox" name="tags" value="{{ tag }}" />{{ tag }}</label>
     {% endfor %}
   </div>
   <div class="button">
