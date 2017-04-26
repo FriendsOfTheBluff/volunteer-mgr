@@ -27,5 +27,5 @@ process_request(_, _, Req) ->
 render_existing_tags(Req) ->
     Tags = volmgr_db_tags:retrieve(),
     Data = [{tags, [T || {T, _} <- Tags]}],
-    {ok, ResponseBody} = volunteer_mgr_templates_tags:render(Data),
+    {ok, ResponseBody} = volmgr_cb_tags_dtl:render(Data),
     cowboy_req:reply(200, [{<<"content-type">>, <<"text/html">>}], ResponseBody, Req).
