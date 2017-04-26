@@ -27,8 +27,8 @@ do_cowboy_configure() ->
     Dispatch = cowboy_router:compile([
         {'_', [
             {"/", volunteer_mgr_cb_default, no_state},
-            {"/people", volunteer_mgr_cb_people, no_state},
-            {"/tags", volunteer_mgr_cb_tags, no_state},
+            {"/people", volmgr_cb_people, no_state},
+            {"/tags", volmgr_cb_tags, no_state},
             {"/static/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}},
             {"/[...]", cowboy_static, {priv_dir, ?MODULE, "pages"}}
         ]}

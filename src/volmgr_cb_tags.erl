@@ -1,4 +1,4 @@
--module(volunteer_mgr_cb_tags).
+-module(volmgr_cb_tags).
 
 -export([init/2]).
 

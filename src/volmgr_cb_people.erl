@@ -1,4 +1,4 @@
--module(volunteer_mgr_cb_people).
+-module(volmgr_cb_people).
 
 -export([init/2]).
 
