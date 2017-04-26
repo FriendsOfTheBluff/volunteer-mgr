@@ -13,7 +13,7 @@
 -spec create(First :: binary(),
                     Last :: binary(),
                     Phone :: phone(),
-                    Email :: binary()) -> ok | {aborted, any()}.
+                    Email :: binary()) -> ok | {error, atom()} | no_return().
 create(First, Last, Phone, Email) ->
     create(First, Last, Phone, Email, [], []).
 
@@ -21,7 +21,7 @@ create(First, Last, Phone, Email) ->
                     Last :: binary(),
                     Phone :: phone(),
                     Email :: binary(),
-                    Notes :: list(binary())) -> ok | {aborted, any()}.
+                    Notes :: list(binary())) -> ok | {error, atom()} | no_return().
 create(First, Last, Phone, Email, Notes) ->
     create(First, Last, Phone, Email, Notes, []).
 
@@ -30,10 +30,11 @@ create(First, Last, Phone, Email, Notes) ->
                     Phone :: phone(),
                     Email :: binary(),
                     Notes :: list(binary()),
-                    Tags :: list(tag())) -> ok | {error, notfound} | no_return().
+                    Tags :: list(tag())) -> ok | {error, atom()} | no_return().
 create(First, Last, Phone, Email, Notes, _Tags=[]) ->
-    Id = create_id(First, Last),
+    Id = create_id(Last, First, Email),
     F = fun() ->
+            ensure_unique(Id),
             Person = #volmgr_people{id=Id,
                                     active=true,
                                     first=First,
@@ -43,10 +44,11 @@ create(First, Last, Phone, Email, Notes, _Tags=[]) ->
                                     notes=Notes},
             mnesia:write(Person)
         end,
-    mnesia:activity(transaction, F);
+    try_create_person(F);
 create(First, Last, Phone, Email, Notes, Tags) ->
-    Id = create_id(First, Last),
+    Id = create_id(Last, First, Email),
     F = fun() ->
+            ensure_unique(Id),
             volmgr_db_tags:ensure_transactional(Tags),
             Person = #volmgr_people{id=Id,
                                     active=true,
@@ -65,15 +67,29 @@ create(First, Last, Phone, Email, Notes, Tags) ->
                               end,
             TagPersonWriter(TagPersonRecords)
         end,
+    try_create_person(F).
+
+-spec try_create_person(F :: function()) -> ok | {error, atom()} | no_return().
+try_create_person(F) ->
     try
         mnesia:activity(transaction, F)
     catch
-        exit:{aborted, notfound} -> {error, notfound}
+        exit:{aborted, notfound} -> {error, notfound};
+        exit:{aborted, eexists} -> {error, eexists}
     end.
 
--spec create_id(First :: binary(), Last :: binary()) -> binary().
-create_id(First, Last) ->
-    erlang:iolist_to_binary([Last, $-, First]).
+-spec ensure_unique(Id :: binary()) -> ok | no_return().
+ensure_unique(Id) ->
+    case mnesia:read({volmgr_people, Id}) of
+        [] -> ok;
+        _ -> mnesia:abort(eexists)
+    end.
+
+-spec create_id(Last :: binary(), First :: binary(), Email :: binary()) -> binary().
+create_id(Last, First, Email) ->
+    L = string:to_lower(binary_to_list(Last)),
+    F = string:to_lower(binary_to_list(First)),
+    erlang:iolist_to_binary([L, $-, F, $-, Email]).
 
 -spec retrieve(Id :: binary()) -> person() | {error, notfound}.
 retrieve(Id) ->
