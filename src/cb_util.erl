@@ -16,8 +16,7 @@ get_post_value(Key, Vals) ->
         V -> V
     end.
 
--spec get_phone(list({binary(), binary() | true})) ->
-    {ok, phone()} | {error, term()}.
+-spec get_phone(list({binary(), binary() | true})) -> phone().
 get_phone(Vals) ->
     PhoneBin = case lists:keyfind(<<"phone">>, 1, Vals) of
                    false -> <<"5095551212">>;
@@ -25,16 +24,27 @@ get_phone(Vals) ->
                end,
     parse_phone(PhoneBin).
 
--spec parse_phone(binary()) -> {ok, phone()} | {error, term()}.
-parse_phone(_PhoneBin) ->
-    {error, not_implemented}.
+-spec parse_phone(binary()) -> phone().
+parse_phone(PhoneBin) ->
+    Digits = [D || D <- binary_to_list(PhoneBin), D >= $0 andalso D =< $9],
+    parse_digits(Digits).
+
+-spec parse_digits(list(integer())) -> phone().
+parse_digits(Digits) when is_list(Digits), length(Digits) =/= 10 ->
+    {999, 999, 9999};
+parse_digits(Digits) when is_list(Digits), length(Digits) =:= 10 ->
+    Area = list_to_integer(lists:sublist(Digits, 1, 3)),
+    P1 = list_to_integer(lists:sublist(Digits, 4, 3)),
+    P2 = list_to_integer(lists:sublist(Digits, 7, 4)),
+    {Area, P1, P2}.
 
 -ifdef(TEST).
 parse_phone_test_() ->
-    [?_assert(parse_phone(<<"5095551212">>) =:= {509, 555, 1212}),
-     ?_assert(parse_phone(<<"509 555 1212">>) =:= {509, 555, 1212}),
-     ?_assert(parse_phone(<<"509-555-1212">>) =:= {509, 555, 1212}),
-     ?_assert(parse_phone(<<"509555-1212">>) =:= {509, 555, 1212}),
-     ?_assert(parse_phone(<<"XX509Y555ZZ1212">>) =:= {509, 555, 1212})
+    [?_assertMatch({509,555,1212}, parse_phone(<<"5095551212">>)),
+     ?_assertMatch({509,555,1212}, parse_phone(<<"509 555 1212">>)),
+     ?_assertMatch({509,555,1212}, parse_phone(<<"509-555-1212">>)),
+     ?_assertMatch({509,555,1212}, parse_phone(<<"509555-1212">>)),
+     ?_assertMatch({509,555,1212}, parse_phone(<<"XX509Y555ZZ1212">>)),
+     ?_assertMatch({999,999,9999}, parse_phone(<<"XX509Y5ZZ1212">>))
     ].
 -endif.
