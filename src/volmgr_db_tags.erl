@@ -41,6 +41,7 @@ validate(Tags) ->
 
 -spec retrieve() -> list(tag()) | list().
 retrieve() ->
+    %% TODO FIXME only active tags?
     I = fun(#volmgr_tags{id=T, active=A}, Acc)->
 	        [{T, A}|Acc]
 	    end,
