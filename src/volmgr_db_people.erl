@@ -13,7 +13,7 @@
 -spec create(First :: binary(),
                     Last :: binary(),
                     Phone :: phone(),
-                    Email :: binary()) ->  ok | {error, atom()} | no_return().
+                    Email :: binary()) -> ok | {error, atom()} | no_return().
 create(First, Last, Phone, Email) ->
     create(First, Last, Phone, Email, [], []).
 
