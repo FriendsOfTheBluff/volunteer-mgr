@@ -6,6 +6,7 @@
         ]).
 
 -include_lib("stdlib/include/qlc.hrl").
+
 -include("types.hrl").
 -include("db.hrl").
 -include("entities.hrl").
@@ -30,9 +31,16 @@ handle_validate(ok, Tags) ->
 
 -spec validate(Tags :: list(tag())) -> ok | {error, invalid_tag}.
 validate(Tags) ->
-    Bad = ['ok', 'error', 'notfound', 'undefined'],
+    Bad = [<<"ok">>, <<"error">>, <<"notfound">>, <<"undefined">>],
+    % http://erlang.org/doc/reference_manual/introduction.html
+    Res = [<<"after">>, <<"and">>, <<"andalso">>,
+           <<"band">>, <<"begin">>, <<"bnot">>, <<"bor">>, <<"bsl">>, <<"bsr">>, <<"bxor">>,
+           <<"case">>, <<"catch">>, <<"cond">>,
+           <<"div">>, <<"end">>, <<"fun">>, <<"if">>, <<"let">>, <<"not">>,
+           <<"of">>, <<"or">>, <<"orelse">>,
+           <<"receive">>, <<"rem">>, <<"try">>, <<"when">>, <<"xor">>],
     Pred = fun(T) ->
-               lists:member(T, Bad) orelse erl_scan:reserved_word(T)
+               lists:member(T, Bad) orelse lists:member(T, Res)
            end,
     case lists:any(Pred, Tags) of
         true -> {error, invalid_tag};

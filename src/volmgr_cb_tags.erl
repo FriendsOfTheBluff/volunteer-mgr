@@ -14,8 +14,7 @@ process_request(<<"GET">>, _, Req) ->
     render_existing_tags(Req);
 process_request(<<"POST">>, true, Req) ->
     {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
-    TagBin = cb_util:get_post_value(<<"new_tag">>, PostVals),
-    Tag = binary_to_atom(TagBin, latin1),
+    Tag = cb_util:get_post_value(<<"new_tag">>, PostVals),
     ok = volmgr_db_tags:create(Tag),
     render_existing_tags(Req1);
 process_request(<<"POST">>, false, Req) ->
