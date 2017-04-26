@@ -19,7 +19,7 @@ process_request(<<"POST">>, true, Req) ->
     P = cb_util:get_phone(PostVals),
     E = cb_util:get_post_value(<<"email">>, PostVals),
     N = cb_util:get_post_value(<<"notes">>, PostVals),
-    Tags = [binary_to_atom(T, latin1) || {<<"tags">>, T} <- PostVals],
+    Tags = [T || {<<"tags">>, T} <- PostVals],
     ok = volmgr_db_people:create(F, L, P, E, [N], Tags),
     render_form_with_existing_tags(Req1);
 process_request(<<"POST">>, false, Req) ->

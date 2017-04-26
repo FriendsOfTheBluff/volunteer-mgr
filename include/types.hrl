@@ -1,3 +1,3 @@
 -type phone() :: {integer(), integer(), integer()}.
 
--type tag() :: atom().
+-type tag() :: binary().
