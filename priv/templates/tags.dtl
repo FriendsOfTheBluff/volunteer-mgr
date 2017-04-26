@@ -2,17 +2,17 @@
 -->
 <html>
 <body>
+<div>
+  <figure>
+    <figcaption>Existing tags:</figcaption>
+    <ul>
+      {% for tag in tags %}
+        <li>{{ tag }}</li>
+      {% endfor %}
+    </ul>
+  </figure>
+</div>
 <form action="/tags" method="POST">
-  <div>
-    <figure>
-      <figcaption>Tags:</figcaption>
-      <ul>
-        {% for tag in tags %}
-          <li>{{ tag }}</li>
-        {% endfor %}
-      </ul>
-    </figure>
-  </div>
   <div>
     <label for="new_tag">New Tag:</label>
     <input type="text" id="new_tag" name="new_tag">
