@@ -5,7 +5,7 @@
 -spec init(cowboy_req:req(), term()) -> {ok, cowboy_req:req(), term()}.
 init(Req, State) ->
     Method = cowboy_req:method(Req),
-	HasBody = cowboy_req:has_body(Req),
+    HasBody = cowboy_req:has_body(Req),
     Reply = process_request(Method, HasBody, Req),
     {ok, Reply, State}.
 
@@ -16,8 +16,7 @@ process_request(<<"POST">>, true, Req) ->
     {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
     F = cb_util:get_post_value(<<"first_name">>, PostVals),
     L = cb_util:get_post_value(<<"last_name">>, PostVals),
-    %% TODO {<<"phone">>, P} = lists:keyfind(<<"phone">>, 1, PostVals),
-    P = {123, 555, 1212},
+    P = cb_util:get_phone(PostVals),
     E = cb_util:get_post_value(<<"email">>, PostVals),
     N = cb_util:get_post_value(<<"notes">>, PostVals),
     Tags = [binary_to_atom(T, latin1) || {<<"tags">>, T} <- PostVals],
@@ -26,7 +25,7 @@ process_request(<<"POST">>, true, Req) ->
 process_request(<<"POST">>, false, Req) ->
     cowboy_req:reply(400, [], <<"Missing Body">>, Req);
 process_request(_, _, Req) ->
-	cowboy_req:reply(405, Req).
+    cowboy_req:reply(405, Req).
 
 -spec render_form_with_existing_tags(cowboy_req:req()) -> cowboy_req:req().
 render_form_with_existing_tags(Req) ->

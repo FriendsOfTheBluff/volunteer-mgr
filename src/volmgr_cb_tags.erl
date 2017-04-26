@@ -5,7 +5,7 @@
 -spec init(cowboy_req:req(), term()) -> {ok, cowboy_req:req(), term()}.
 init(Req, State) ->
     Method = cowboy_req:method(Req),
-	HasBody = cowboy_req:has_body(Req),
+    HasBody = cowboy_req:has_body(Req),
     Reply = process_request(Method, HasBody, Req),
     {ok, Reply, State}.
 
@@ -21,7 +21,7 @@ process_request(<<"POST">>, true, Req) ->
 process_request(<<"POST">>, false, Req) ->
     cowboy_req:reply(400, [], <<"Missing Body">>, Req);
 process_request(_, _, Req) ->
-	cowboy_req:reply(405, Req).
+    cowboy_req:reply(405, Req).
 
 -spec render_existing_tags(cowboy_req:req()) -> cowboy_req:req().
 render_existing_tags(Req) ->

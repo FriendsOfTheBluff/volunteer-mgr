@@ -38,6 +38,7 @@ run: rebar3
 	@$(REBAR3) shell
 
 test: compile
+	@$(REBAR3) eunit
 	@$(REBAR3) ct
 
 rebar3: $(REBAR3)
