@@ -13,13 +13,13 @@
 get_post_value(Key, Vals) ->
     case lists:keyfind(Key, 1, Vals) of
         false -> <<"undefined">>;
-        V -> V
+        {Key, V} -> V
     end.
 
 -spec get_phone(list({binary(), binary() | true})) -> phone().
 get_phone(Vals) ->
-    PhoneBin = case lists:keyfind(<<"phone">>, 1, Vals) of
-                   false -> <<"5095551212">>;
+    PhoneBin = case get_post_value(<<"phone">>, Vals) of
+                   <<"undefined">> -> <<"5095551212">>;
                    P -> P
                end,
     parse_phone(PhoneBin).
