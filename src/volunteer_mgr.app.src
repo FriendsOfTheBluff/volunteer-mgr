@@ -6,7 +6,7 @@
     {registered, []},
     {applications, [
         kernel, stdlib, mnesia,
-        cowboy, erlydtl, jsx
+        cowboy, erlydtl
     ]},
     {mod, {volunteer_mgr_app, []}},
     {env, [

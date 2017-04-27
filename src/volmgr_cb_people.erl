@@ -13,7 +13,7 @@ init(Req, State) ->
 process_request(<<"GET">>, _, Req) ->
     render_form_with_existing_tags(Req);
 process_request(<<"POST">>, true, Req) ->
-    {ok, PostVals, Req1} = cowboy_req:body_qs(Req),
+    {ok, PostVals, Req1} = cowboy_req:read_urlencoded_body(Req),
     F = cb_util:get_post_value(<<"first_name">>, PostVals),
     L = cb_util:get_post_value(<<"last_name">>, PostVals),
     P = cb_util:get_phone(PostVals),
@@ -23,7 +23,8 @@ process_request(<<"POST">>, true, Req) ->
     ok = volmgr_db_people:create(F, L, P, E, [N], Tags),
     render_form_with_existing_tags(Req1);
 process_request(<<"POST">>, false, Req) ->
-    cowboy_req:reply(400, [], <<"Missing Body">>, Req);
+    Headers = #{<<"content-type">> => <<"text/plain">>},
+    cowboy_req:reply(400, Headers, <<"Missing Body">>, Req);
 process_request(_, _, Req) ->
     cowboy_req:reply(405, Req).
 
@@ -32,4 +33,5 @@ render_form_with_existing_tags(Req) ->
     Tags = volmgr_db_tags:retrieve(),
     Data = [{tags, [T || {T, _} <- Tags]}],
     {ok, ResponseBody} = volmgr_cb_people_dtl:render(Data),
-    cowboy_req:reply(200, [{<<"content-type">>, <<"text/html">>}], ResponseBody, Req).
+    Headers = #{<<"content-type">> => <<"text/html">>},
+    cowboy_req:reply(200, Headers, ResponseBody, Req).

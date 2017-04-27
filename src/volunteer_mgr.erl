@@ -7,10 +7,9 @@ http_start() ->
 
 do_cowboy_start() ->
     {Ip, Port, Workers, Dispatch} = do_cowboy_configure(),
-    cowboy:start_http(http, Workers,
-        [{ip, Ip}, {port, Port}],
-        [{env, [{dispatch, Dispatch}]}]
-    ).
+    Env = #{env => #{dispatch => Dispatch}},
+    Opts = [{ip, Ip}, {port, Port}],
+    cowboy:start_clear(http, Workers, Opts, Env).
 
 do_cowboy_configure() ->
     {ok, Ip} = application:get_env(?MODULE, ip_address),
@@ -18,7 +17,7 @@ do_cowboy_configure() ->
     {ok, Workers} = application:get_env(?MODULE, workers),
     Dispatch = cowboy_router:compile([
         {'_', [
-            {"/", volunteer_mgr_cb_default, no_state},
+            {"/", volmgr_cb_default, no_state},
             {"/people", volmgr_cb_people, no_state},
             {"/tags", volmgr_cb_tags, no_state},
             {"/static/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}},
