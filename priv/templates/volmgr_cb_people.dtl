@@ -1,7 +1,7 @@
-<!-- vim:sw=2:ts=2
--->
-<html>
-<body>
+{% extends "volmgr_cb_base.dtl" %}
+<!-- vim:set sw=2 ts=2:-->
+
+{% block content %}
 <form action="/people" method="POST">
   <div>
     <label for="first_name">First Name:</label>
@@ -33,5 +33,4 @@
     <button type="submit">Save</button>
   </div>
 </form>
-</html>
-</body>
+{% endblock %}

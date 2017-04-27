@@ -21,5 +21,4 @@ jobs:
             - "_build/default/lib/cowboy"
             - "_build/default/lib/cowlib"
             - "_build/default/lib/erlydtl"
-            - "_build/default/lib/jsx"
             - "_build/default/lib/ranch"
