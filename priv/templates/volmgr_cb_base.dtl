@@ -1,0 +1,7 @@
+<!-- vim:set sw=2 ts=2:-->
+<html>
+<body>
+{% block content %}
+{% endblock %}
+</body>
+</html>

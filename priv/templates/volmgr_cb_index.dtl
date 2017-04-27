@@ -1,6 +1,7 @@
-<html>
-<body>
+{% extends "volmgr_cb_base.dtl" %}
+<!-- vim:set sw=2 ts=2:-->
+
+{% block content %}
 <a href="people">People</a>
 <a href="tags">Tags</a>
-</body>
-</html>
+{% endblock %}
