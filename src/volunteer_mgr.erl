@@ -20,8 +20,7 @@ do_cowboy_configure() ->
             {"/", volmgr_cb_default, no_state},
             {"/people", volmgr_cb_people, no_state},
             {"/tags", volmgr_cb_tags, no_state},
-            {"/static/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}},
-            {"/[...]", cowboy_static, {priv_dir, ?MODULE, "pages"}}
+            {"/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}}
         ]}
     ]),
     {Ip, Port, Workers, Dispatch}.
