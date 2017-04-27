@@ -1,1 +1,6 @@
-Hello from Cowboy!
+<html>
+<body>
+<a href="people">People</a>
+<a href="tags">Tags</a>
+</body>
+</html>

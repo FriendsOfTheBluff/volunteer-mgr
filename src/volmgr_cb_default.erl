@@ -3,7 +3,7 @@
 -export([init/2]).
 
 init(Req, State) ->
-    {ok, ResponseBody} = volunteer_mgr_templates_index:render(),
+    {ok, ResponseBody} = volmgr_cb_index_dtl:render(),
     Headers = #{<<"content-type">> => <<"text/html">>},
     Reply = cowboy_req:reply(200, Headers, ResponseBody, Req),
     {ok, Reply, State}.
