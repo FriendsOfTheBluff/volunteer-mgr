@@ -37,7 +37,7 @@ to_html(Req, State) ->
     Body = html_render_existing_tags(),
     {Body, Req, State}.
 
--spec html_create_tag(Req, State) -> {iolist(), Req, State} | {stop, Req, State}
+-spec html_create_tag(Req, State) -> {true, Req, State} | {stop, Req, State}
 	when Req::cowboy_req:req(), State::any().
 html_create_tag(Req, State) ->
     {ok, PostVals, Req1} = cowboy_req:read_urlencoded_body(Req),
