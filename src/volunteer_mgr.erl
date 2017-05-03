@@ -19,6 +19,7 @@ do_cowboy_configure() ->
         {'_', [
             {"/", volmgr_cb_default, no_state},
             {"/people", volmgr_cb_people, no_state},
+            {"/person/create", volmgr_cb_person_create, no_state},
             {"/tags", volmgr_cb_tags, no_state},
             {"/tag/create", volmgr_cb_tag_create, no_state},
             {"/[...]", cowboy_static, {priv_dir, ?MODULE, "static"}}
