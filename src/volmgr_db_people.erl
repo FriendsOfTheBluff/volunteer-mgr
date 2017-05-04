@@ -6,31 +6,30 @@
         ]).
 
 -include_lib("stdlib/include/qlc.hrl").
--include("types.hrl").
 -include("db.hrl").
 -include("entities.hrl").
 
 -spec create(First :: binary(),
-                    Last :: binary(),
-                    Phone :: phone(),
-                    Email :: binary()) -> ok | {error, atom()} | no_return().
+             Last :: binary(),
+             Phone :: phone(),
+             Email :: binary()) -> {ok, person_id()} | {error, atom()} | no_return().
 create(First, Last, Phone, Email) ->
     create(First, Last, Phone, Email, [], []).
 
 -spec create(First :: binary(),
-                    Last :: binary(),
-                    Phone :: phone(),
-                    Email :: binary(),
-                    Notes :: list(binary())) -> ok | {error, atom()} | no_return().
+             Last :: binary(),
+             Phone :: phone(),
+             Email :: binary(),
+             Notes :: list(binary())) -> {ok, person_id()} | {error, atom()} | no_return().
 create(First, Last, Phone, Email, Notes) ->
     create(First, Last, Phone, Email, Notes, []).
 
 -spec create(First :: binary(),
-                    Last :: binary(),
-                    Phone :: phone(),
-                    Email :: binary(),
-                    Notes :: list(binary()),
-                    Tags :: list(tag())) -> ok | {error, atom()} | no_return().
+             Last :: binary(),
+             Phone :: phone(),
+             Email :: binary(),
+             Notes :: list(binary()),
+             Tags :: list(tag())) -> {ok, person_id()} | {error, atom()} | no_return().
 create(First, Last, Phone, Email, Notes, _Tags=[]) ->
     Id = create_id(Last, First, Email),
     F = fun() ->
@@ -44,7 +43,7 @@ create(First, Last, Phone, Email, Notes, _Tags=[]) ->
                                     notes=Notes},
             mnesia:write(Person)
         end,
-    try_create_person(F);
+    try_create_person(Id, F);
 create(First, Last, Phone, Email, Notes, Tags) ->
     Id = create_id(Last, First, Email),
     F = fun() ->
@@ -67,18 +66,21 @@ create(First, Last, Phone, Email, Notes, Tags) ->
                               end,
             TagPersonWriter(TagPersonRecords)
         end,
-    try_create_person(F).
+    try_create_person(Id, F).
 
--spec try_create_person(F :: function()) -> ok | {error, atom()} | no_return().
-try_create_person(F) ->
+-spec try_create_person(Id :: person_id(), F :: function()) -> {ok, person_id()} | {error, atom()} | no_return().
+try_create_person(Id, F) ->
     try
-        mnesia:activity(transaction, F)
+        case mnesia:activity(transaction, F) of
+            ok -> {ok, Id};
+            Err -> Err
+        end
     catch
         exit:{aborted, notfound} -> {error, notfound};
         exit:{aborted, eexists} -> {error, eexists}
     end.
 
--spec ensure_unique(Id :: binary()) -> ok | no_return().
+-spec ensure_unique(Id :: person_id()) -> ok | no_return().
 ensure_unique(Id) ->
     case mnesia:read({volmgr_people, Id}) of
         [] -> ok;
@@ -91,7 +93,7 @@ create_id(Last, First, Email) ->
     F = string:to_lower(binary_to_list(First)),
     erlang:iolist_to_binary([L, $-, F, $-, Email]).
 
--spec retrieve(Id :: binary()) -> person() | {error, notfound}.
+-spec retrieve(Id :: person_id()) -> person() | {error, notfound}.
 retrieve(Id) ->
     F = fun() ->
             case mnesia:read({volmgr_people, Id}) of
@@ -115,13 +117,13 @@ retrieve() ->
 retrieve_by_tag(Tag) ->
     F = fun() ->
             Q = qlc:q([to_entity(VP) || VPT <- mnesia:table(volmgr_people_tags),
-                                          VP <- mnesia:table(volmgr_people),
-                                          VPT#volmgr_people_tags.volmgr_tags_id =:= Tag,
-                                          VPT#volmgr_people_tags.volmgr_people_id =:= VP#volmgr_people.id]),
+                                        VP <- mnesia:table(volmgr_people),
+                                        VPT#volmgr_people_tags.volmgr_tags_id =:= Tag,
+                                        VPT#volmgr_people_tags.volmgr_people_id =:= VP#volmgr_people.id]),
             qlc:e(Q)
         end,
     mnesia:activity(transaction, F).
 
--spec to_entity(#volmgr_people{}) -> #person{}.
+-spec to_entity(#volmgr_people{}) -> person().
 to_entity(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
     #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}.

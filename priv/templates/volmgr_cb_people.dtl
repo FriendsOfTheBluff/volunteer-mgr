@@ -10,15 +10,17 @@
       <th>Last</th>
       <th>Email</th>
       <th>Phone</th>
+      <th>Notes</th>
     </tr>
+    {% for person in people %}
     <tr>
-      {% for person in people %}
-        <td>{{ person.first }}</td>
-        <td>{{ person.last }}</td>
-        <td>{{ person.email }}</td>
-        <td>{{ person.phone }}</td>
-      {% endfor %}
+      <td>{{ person.first }}</td>
+      <td>{{ person.last }}</td>
+      <td>{{ person.email }}</td>
+      <td>{{ person.phone }}</td>
+      <td>{{ person.notes }}</td>
     </tr>
+    {% endfor %}
   </figure>
 </div>
 {% endblock %}

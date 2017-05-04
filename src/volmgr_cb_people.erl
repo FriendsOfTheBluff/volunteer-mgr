@@ -5,7 +5,6 @@
         content_types_provided/2,
         to_html/2]).
 
--include("types.hrl").
 -include("entities.hrl").
 
 -spec init(Req, Opts) -> {cowboy_rest, Req, Opts} when Req::cowboy_req:req(), Opts::any().
@@ -33,8 +32,8 @@ to_html(Req, State) ->
     {ok, Body} = volmgr_cb_people_dtl:render([{people, People}]),
     {Body, Req, State}.
 
-to_proplist(#person{first=F, last=L, email=E, phone=P}) ->
-    [{first, F}, {last, L}, {email, E}, {phone, to_phone(P)}].
+to_proplist(#person{first=F, last=L, email=E, phone=P, notes=N}) ->
+    [{first, F}, {last, L}, {email, E}, {phone, to_phone(P)}, {notes, N}].
 
 to_phone({N0, N1, N2}) ->
     B0 = integer_to_binary(N0),

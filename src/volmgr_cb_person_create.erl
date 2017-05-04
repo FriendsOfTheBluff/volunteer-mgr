@@ -7,6 +7,8 @@
         to_html/2,
         html_create_person/2]).
 
+-include("entities.hrl").
+
 -spec init(Req, Opts) -> {cowboy_rest, Req, Opts} when Req::cowboy_req:req(), Opts::any().
 init(Req, Opts) ->
     {cowboy_rest, Req, Opts}.
@@ -47,9 +49,18 @@ html_create_person(Req, State) ->
     E = cb_util:get_post_value(<<"email">>, PostVals),
     N = cb_util:get_post_value(<<"notes">>, PostVals),
     Tags = [T || {<<"tags">>, T} <- PostVals],
-    ok = volmgr_db_people:create(F, L, P, E, [N], Tags),
+    handle_db_create(volmgr_db_people:create(F, L, P, E, [N], Tags), Req1, State).
+
+-spec handle_db_create(Rslt, Req, State) -> {true, Req, State} | {stop, Req, State}
+	when Rslt::{ok, person_id()} | {error, any()}, Req::cowboy_req:req(), State::any().
+handle_db_create({ok, Id}, Req, State) ->
+    Req1 = cowboy_req:set_resp_body(html_render_person_created(Id), Req),
+    {true, Req1, State};
+handle_db_create({error, eexists}, Req, State) ->
     % TODO success? Req2 = cowboy_req:set_resp_body(html_render_existing_tags(), Req1),
-    {true, Req1, State}.
+    {true, Req, State};
+handle_db_create({error, _Err}, Req, State) ->
+    {true, Req, State}.
 
 -spec html_render_person_form() -> iolist().
 html_render_person_form() ->
@@ -57,3 +68,8 @@ html_render_person_form() ->
     Data = [{tags, [T || {T, _} <- Tags]}],
     {ok, Body} = volmgr_cb_person_create_dtl:render(Data),
     Body.
+
+-spec html_render_person_created(person_id()) -> iolist().
+html_render_person_created(_Id) ->
+    %% P = volmgr_db_people:retrieve(Id),
+    [<<"TODO">>].
