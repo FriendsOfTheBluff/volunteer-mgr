@@ -1,0 +1,36 @@
+{% extends "volmgr_cb_base.dtl" %}
+<!-- vim:set sw=2 ts=2:-->
+
+{% block content %}
+<form action="/person/create" method="POST">
+  <div>
+    <label for="first_name">First Name:</label>
+    <input type="text" id="first_name" name="first_name">
+  </div>
+  <div>
+    <label for="last_name">Last Name:</label>
+    <input type="text" id="last_name" name="last_name">
+  </div>
+  <div>
+    <label for="phone">Phone:</label>
+    <input type="phone" id="phone" name="phone">
+  </div>
+  <div>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email">
+  </div>
+  <div>
+    <label for="notes">Notes:</label>
+    <textarea name="notes" id="notes"></textarea>
+  </div>
+  <div>
+    <label for="tags">Tags:</label>
+    {% for tag in tags %}
+      <label><input type="checkbox" name="tags" value="{{ tag }}" />{{ tag }}</label>
+    {% endfor %}
+  </div>
+  <div class="button">
+    <button type="submit">Save</button>
+  </div>
+</form>
+{% endblock %}

@@ -1,5 +1,9 @@
+-type phone() :: {integer(), integer(), integer()}.
+-type tag() :: binary().
+-type person_id() :: binary().
+
 -record(person,
-        {id :: binary(),
+        {id :: person_id(),
          active :: boolean(),
          first :: binary(),
          last :: binary(),

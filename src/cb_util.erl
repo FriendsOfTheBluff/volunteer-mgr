@@ -3,7 +3,7 @@
 -export([get_post_value/2,
          get_phone/1]).
 
--include("types.hrl").
+-include("entities.hrl").
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").

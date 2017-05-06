@@ -4,7 +4,6 @@
          init_tables/1,
          init_schema/0]).
 
--include("types.hrl").
 -include("db.hrl").
 
 -spec init_tables() -> ok.

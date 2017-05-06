@@ -2,6 +2,8 @@
 <!-- vim:set sw=2 ts=2:-->
 
 {% block content %}
-<a href="people">People</a>
-<a href="tags">Tags</a>
+<a href="/people">All People</a><br/>
+<a href="/person/create">Create Person</a><br/>
+<a href="/tags">All Tags</a><br/>
+<a href="/tag/create">Create Tag</a>
 {% endblock %}
