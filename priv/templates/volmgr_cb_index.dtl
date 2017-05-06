@@ -2,8 +2,11 @@
 <!-- vim:set sw=2 ts=2:-->
 
 {% block content %}
-<a href="/people">All People</a><br/>
-<a href="/person/create">Create Person</a><br/>
-<a href="/tags">All Tags</a><br/>
-<a href="/tag/create">Create Tag</a>
+<p>Welcome to the Friends of the Bluff Volunteer Manager.</p>
+<div class="navigation">
+  <a href="/people">All People</a><br/>
+  <a href="/person/create">Create Person</a><br/>
+  <a href="/tags">All Tags</a><br/>
+  <a href="/tag/create">Create Tag</a>
+</div>
 {% endblock %}
