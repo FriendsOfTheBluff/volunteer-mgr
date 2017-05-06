@@ -33,4 +33,7 @@
     <button type="submit">Save</button>
   </div>
 </form>
+<div>
+Result: {{ result }}
+</div>
 {% endblock %}

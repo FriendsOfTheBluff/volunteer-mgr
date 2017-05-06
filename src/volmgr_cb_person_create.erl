@@ -64,12 +64,17 @@ handle_db_create({error, _Err}, Req, State) ->
 
 -spec html_render_person_form() -> iolist().
 html_render_person_form() ->
+    html_render_person_form(<<"">>).
+
+-spec html_render_person_form(string()) -> iolist().
+html_render_person_form(Result) ->
     Tags = volmgr_db_tags:retrieve(),
-    Data = [{tags, [T || {T, _} <- Tags]}],
+    Data = [{tags, [T || {T, _} <- Tags]}, {result, Result}],
     {ok, Body} = volmgr_cb_person_create_dtl:render(Data),
     Body.
 
 -spec html_render_person_created(person_id()) -> iolist().
-html_render_person_created(_Id) ->
-    %% P = volmgr_db_people:retrieve(Id),
-    [<<"TODO">>].
+html_render_person_created(Id) ->
+    P = volmgr_db_people:retrieve(Id),
+    Result = io_lib:format("successfuly created ~s ~s", [P#person.first, P#person.last]),
+    html_render_person_form(Result).
