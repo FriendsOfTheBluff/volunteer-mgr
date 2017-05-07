@@ -17,15 +17,13 @@
     <![endif]-->
     <div class="header">
     {% block header %}
-      <div>
-        <ul class="navigation">
-          <li class="navigation"><a href="/people">All People</a></li>
-          <li class="navigation"><a href="/people/search">Search People</a></li>
-          <li class="navigation"><a href="/person/create">Create Person</a></li>
-          <li class="navigation"><a href="/tags">All Tags</a></li>
-          <li class="navigation"><a href="/tag/create">Create Tag</a></li>
-        </ul>
-      </div>
+      <ul class="nav">
+        <li><a href="/people">All People</a></li>
+        <li><a href="/people/search">Search People</a></li>
+        <li><a href="/person/create">Create Person</a></li>
+        <li><a href="/tags">All Tags</a></li>
+        <li><a href="/tag/create">Create Tag</a></li>
+      </ul>
     {% endblock %}
     </div>
     <div class="content">

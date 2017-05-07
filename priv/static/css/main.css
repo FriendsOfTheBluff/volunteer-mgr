@@ -95,30 +95,68 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
-ul.navigation {
-    list-style-type: none;
+div.header {
+    margin-bottom: 4px;
+    background: black;
+}
+
+.nav {
+    display: table;
     margin: 0;
     padding: 0;
-    overflow: hidden;
-    border: 1px solid #e7e7e7;
-    background-color: black;
+    background: black;
 }
 
-li.navigation {
-    float: left;
-}
-
-li.navigation a {
-    display: block;
-    color: white;
+.nav li {
+    display: table-cell;
     text-align: center;
-    padding: 14px 16px;
+    padding: 8px;
+}
+
+.nav a {
+    color: white;
     text-decoration: none;
 }
 
-table {
-    border-spacing: 1em 1em;
-    border-collapse: separate;
+.create form  {
+    display: table;
+}
+
+.create div {
+    display: table-row;
+}
+
+.create label {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 4px;
+}
+
+.create input {
+    display: table-cell;
+    vertical-align: middle;
+    margin: 4px;
+    padding: 1px;
+}
+
+.create textarea {
+    display: table-cell;
+    height: 144px;
+    margin: 4px;
+}
+
+.create ul {
+    list-style-type: none;
+}
+
+.create .button {
+    display: table-cell;
+    vertical-align: middle;
+    padding: 4px;
+}
+
+table, th, td {
+   border: 1px solid black;
 }
 
 /* ==========================================================================

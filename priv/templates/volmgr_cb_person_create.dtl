@@ -2,7 +2,7 @@
 <!-- vim:set sw=2 ts=2:-->
 
 {% block content %}
-<form action="/person/create" method="POST">
+<form class="create" action="/person/create" method="POST">
   <div>
     <label for="first_name">First Name:</label>
     <input type="text" id="first_name" name="first_name">
@@ -25,9 +25,11 @@
   </div>
   <div>
     <label for="tags">Tags:</label>
+    <ul>
     {% for tag in tags %}
-      <label><input type="checkbox" name="tags" value="{{ tag }}" />{{ tag }}</label>
+    <li><input type="checkbox" name="tags" value="{{ tag }}"/>{{ tag }}</li>
     {% endfor %}
+    </ul>
   </div>
   <div class="button">
     <button type="submit">Save</button>
