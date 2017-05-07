@@ -19,7 +19,7 @@ $(SCHEMA_DIR)/schema.DAT:
 		-eval 'volmgr_db_schema:init_schema()' \
 		-eval 'init:stop(0)'
 
-shell:
+shell: schema
 	@$(REBAR3) shell --name $(NODENAME)
 
 include rebar3.mk

@@ -95,6 +95,27 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
+ul.navigation {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e7e7e7;
+    background-color: black;
+}
+
+li.navigation {
+    float: left;
+}
+
+li.navigation a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
 table {
     border-spacing: 1em 1em;
     border-collapse: separate;
