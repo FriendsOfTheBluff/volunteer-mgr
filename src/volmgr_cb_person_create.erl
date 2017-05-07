@@ -66,7 +66,7 @@ handle_db_create({error, _Err}, Req, State) ->
 html_render_person_form() ->
     html_render_person_form(<<"">>).
 
--spec html_render_person_form(string()) -> iolist().
+-spec html_render_person_form(iolist() | binary()) -> iolist().
 html_render_person_form(Result) ->
     Tags = volmgr_db_tags:retrieve(),
     Data = [{tags, [T || {T, _} <- Tags]}, {result, Result}],
