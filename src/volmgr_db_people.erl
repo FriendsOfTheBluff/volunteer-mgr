@@ -128,4 +128,5 @@ retrieve_by_tag(Tag) ->
 -spec to_entity(#volmgr_people{}) -> person().
 to_entity(#volmgr_people{id=Id, active=A, first=F, last=L,
                          phone=P, email=E, notes=N, tags=T}) ->
-    #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N, tags=T}.
+    #person{id=Id, active=A, first=F, last=L,
+            phone=P, email=E, notes=N, tags=T}.

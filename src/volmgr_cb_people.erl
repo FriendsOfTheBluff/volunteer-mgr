@@ -32,8 +32,9 @@ to_html(Req, State) ->
     {ok, Body} = volmgr_cb_people_dtl:render([{people, People}]),
     {Body, Req, State}.
 
-to_proplist(#person{first=F, last=L, email=E, phone=P, notes=N}) ->
-    [{first, F}, {last, L}, {email, E}, {phone, to_phone(P)}, {notes, N}].
+to_proplist(#person{first=F, last=L, email=E, phone=P, notes=N, tags=T}) ->
+    [{first, F}, {last, L}, {email, E},
+     {phone, to_phone(P)}, {notes, N}, {tags, T}].
 
 to_phone({N0, N1, N2}) ->
     B0 = integer_to_binary(N0),

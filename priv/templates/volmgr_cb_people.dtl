@@ -11,6 +11,7 @@
       <th>Email</th>
       <th>Phone</th>
       <th>Notes</th>
+      <th>Tags</th>
     </tr>
     {% for person in people %}
     <tr>
@@ -19,6 +20,7 @@
       <td>{{ person.email }}</td>
       <td>{{ person.phone }}</td>
       <td>{{ person.notes }}</td>
+      <td>{{ person.tags }}</td>
     </tr>
     {% endfor %}
   </figure>
