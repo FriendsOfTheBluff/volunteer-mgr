@@ -55,7 +55,8 @@ create(First, Last, Phone, Email, Notes, Tags) ->
                                     last=Last,
                                     phone=Phone,
                                     email=Email,
-                                    notes=Notes},
+                                    notes=Notes,
+                                    tags=Tags},
             mnesia:write(Person),
             TagPersonRecords = [#volmgr_people_tags{volmgr_tags_id=Tag, volmgr_people_id=Id} || Tag <- Tags],
             TagPersonWriter = fun W([]) ->
@@ -125,5 +126,6 @@ retrieve_by_tag(Tag) ->
     mnesia:activity(transaction, F).
 
 -spec to_entity(#volmgr_people{}) -> person().
-to_entity(#volmgr_people{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N})->
-    #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N}.
+to_entity(#volmgr_people{id=Id, active=A, first=F, last=L,
+                         phone=P, email=E, notes=N, tags=T}) ->
+    #person{id=Id, active=A, first=F, last=L, phone=P, email=E, notes=N, tags=T}.

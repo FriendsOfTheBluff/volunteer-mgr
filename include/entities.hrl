@@ -9,7 +9,8 @@
          last :: binary(),
          phone :: phone(),
          email :: binary(),
-         notes = [] :: list(binary())
+         notes = [] :: list(binary()),
+         tags = [] :: list(tag())
         }).
 
 -type person() :: #person{}.
